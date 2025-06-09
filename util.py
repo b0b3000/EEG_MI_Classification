@@ -16,8 +16,44 @@ from matplotlib import pyplot as plt
 from collections import Counter
 
 AMPLITUDE_MAGNIFICATION = 1000 #current best = 1000
-DATASET_LOCATION = "/Volumes/My Passport/Honours_Datasets/BCICIV_2a_gdf/"
-#DATASET_LOCATION = "/Users/bobbeashel/mne_data/MNE-bnci-data/database/data-sets/001-2014/"
+DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
+#DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
+
+def plot_predicted_probs(probs, num_samples_to_plot):
+    subset = probs[:num_samples_to_plot]
+
+    labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
+    classes = [f'Class {i}' for i in range(probs.shape[1])]
+
+    bottom = np.zeros(num_samples_to_plot)
+
+    plt.figure(figsize=(12, 6))
+    for i in range(probs.shape[1]):
+        plt.bar(labels, subset[:, i], bottom=bottom, label=classes[i])
+        bottom += subset[:, i]
+
+    plt.ylabel('Probability')
+    plt.title(f'Class Probabilities (First {num_samples_to_plot} Samples)')
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+def accept_confident_probabilities(probs, k, Y_test):
+    # Get indices of sorted probabilities (descending)
+    sorted_indices = np.argsort(-probs, axis=1)
+
+    # Highest and second-highest probabilities
+    top1_probs = probs[np.arange(len(probs)), sorted_indices[:, 0]]
+    top2_probs = probs[np.arange(len(probs)), sorted_indices[:, 1]]
+
+    # Apply condition: only keep prediction if top1 >= 2 * top2
+    preds = sorted_indices[:, 0]
+    mask = top1_probs >= k * top2_probs
+
+    preds = preds[mask]
+    Y_test = Y_test[mask]
+    return preds, Y_test
 
 def get_mne_dataset():
     kernels, chans, samples = 1, 60, 151
@@ -61,10 +97,11 @@ def get_mne_dataset():
 
     return(X, labels, chans, kernels, samples, names)
 
-def bci_2a_helper(file_names, directory, tmin, tmax, chans, mode):
+def bci_2a_helper(file_names, tmin, tmax, chans, mode):
     all_segments = []
     all_labels = []
     if mode == "gdf":
+        directory = DATASET_LOCATION + "BCICIV_2a_gdf/" #.gdf files locations
         for i, file_name in enumerate(file_names):
             file_path = directory + file_name + ".gdf"
             file_path_labels = directory + "true_labels/" + file_name + ".mat"
@@ -95,6 +132,7 @@ def bci_2a_helper(file_names, directory, tmin, tmax, chans, mode):
             all_labels.append(labels_raw)
 
     elif mode == "mat":
+        directory = DATASET_LOCATION + "001-2014/" #.mat files locations
         
         for i, file_name in enumerate(file_names):
 
@@ -154,16 +192,18 @@ def get_bci_2a():
     kernels, relevant_channels = 1, 22 # There are actually 25 channels, but we only want to retain 22, as 3 are EOG
     tmin, tmax = 0.5, 2.5 # seconds before and after stimulus we want to record 
     names        = ['left', 'right', 'foot', 'tongue']
-    directory = DATASET_LOCATION
-    file_names_training = ["A01T", "A02T", "A03T","A04T", "A05T", "A06T", "A07T", "A08T", "A09T"]
-    file_names_testing = ["A01E", "A02E", "A03E", "A04E", "A05E", "A06E", "A07E", "A08E", "A09E"]
+    #file_names_training = ["A01T", "A02T", "A03T","A04T", "A05T", "A06T", "A07T", "A08T", "A09T"]
+    #file_names_testing = ["A01E", "A02E", "A03E", "A04E", "A05E", "A06E", "A07E", "A08E", "A09E"]
+
+    file_names_training = ["A01T"]
+    file_names_testing = ["A01E"]
 
     chans = relevant_channels
 
     samples = int((tmax - (tmin)) * sample_rate)
 
-    train_segments, train_labels = bci_2a_helper(file_names_training, directory, tmin, tmax, chans, mode="gdf")
-    test_segments, test_labels = bci_2a_helper(file_names_testing, directory, tmin, tmax, chans, mode="gdf")
+    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, mode="gdf")
+    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, mode="gdf")
 
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names)
 

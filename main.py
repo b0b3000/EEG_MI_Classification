@@ -155,13 +155,13 @@ model.load_weights('/tmp/checkpoint.h5')
 ###############################################################################
 
 print(model.summary())
-probs       = model.predict(X_test)
-preds       = probs.argmax(axis = -1)  
-acc         = np.mean(preds == Y_test.argmax(axis=-1))
+probs = model.predict(X_test)
+
+k=1.2 # If k is 1, just accept all highest probs (preds       = probs.argmax(axis = -1)  )
+preds, Y_test_eegnet = util.accept_confident_probabilities(probs, k, Y_test)
+acc         = np.mean(preds == Y_test_eegnet.argmax(axis=-1))
 print("Classification accuracy EEGNet: %f " % (acc))
-
-
-
+print((len(Y_test) - len(Y_test_eegnet)), " samples deleted")
 
 ############################# xDAWN + RG Portion ##############################
 
@@ -193,23 +193,33 @@ print("Classification accuracy xDAWN + RG: %f " % (acc2))
 # plot the confusion matrices for both classifiers
 
 plt.figure(0)
-plot_confusion_matrix(preds, Y_test.argmax(axis = -1), names, title = 'EEGNet-8,2')
+plot_confusion_matrix(preds, Y_test_eegnet.argmax(axis = -1), names, title = 'EEGNet-8,2')
 
 
 plt.figure(1)
 plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
 
-
-cm = confusion_matrix(Y_test.argmax(axis = -1), preds)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=names)
-disp.plot()
-plt.title("EEGNet-8,2")
 plt.show()
 
-cm = confusion_matrix(Y_test.argmax(axis = -1), preds_rg)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=names)
-disp.plot()
-plt.title("xDawn + RG")
+# Show only the first 10 samples for clarity
+num_samples_to_plot = 10
+subset = probs[:num_samples_to_plot]
+
+labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
+classes = [f'Class {i}' for i in range(probs.shape[1])]
+
+bottom = np.zeros(num_samples_to_plot)
+
+plt.figure(figsize=(12, 6))
+for i in range(probs.shape[1]):
+    plt.bar(labels, subset[:, i], bottom=bottom, label=classes[i])
+    bottom += subset[:, i]
+
+plt.ylabel('Probability')
+plt.title('Class Probabilities (First 10 Samples)')
+plt.legend()
+plt.xticks(rotation=45)
+plt.tight_layout()
 plt.show()
 
 
