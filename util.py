@@ -14,6 +14,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from matplotlib import pyplot as plt
 from collections import Counter
+import seaborn as sns
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
@@ -37,6 +38,37 @@ def plot_predicted_probs(probs, num_samples_to_plot):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
+def plot_prediction_confidence(probs, k=1.2):
+
+    """
+    Plots a strip plot (dot plot) of Top1/Top2 confidence ratios for all samples, capped at 3.
+    
+    Parameters:
+    - probs: 2D numpy array of shape (num_samples, num_classes)
+    """
+    sorted_probs = -np.sort(-probs, axis=1)
+    top1 = sorted_probs[:, 0]
+    top2 = sorted_probs[:, 1]
+
+    # Avoid division by zero
+    with np.errstate(divide='ignore', invalid='ignore'):
+        confidence_ratio = np.where(top2 != 0, top1 / top2, np.inf)
+
+    # Cap extreme values at 3 for visualization clarity
+    confidence_ratio = np.clip(confidence_ratio, a_min=None, a_max=3)
+
+    # Seaborn style
+    sns.set(style="whitegrid")
+
+    # Plot
+    plt.figure(figsize=(12, 10))
+    # Highlight region from 1 to k
+    plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Region (1–{k})')
+    sns.histplot(confidence_ratio, kde=True, bins=30, color='skyblue')
+    plt.title("Histogram + KDE of Confidence Ratios (Top1 / Top2)")
+    plt.xlabel("Confidence Ratio")
+    plt.ylabel("Frequency")
 
 
 
@@ -82,7 +114,7 @@ def get_mne_dataset():
 
     return(X, labels, chans, kernels, samples, names)
 
-def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag):
+def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline):
     if file_names:
         all_segments = []
         all_labels = []
@@ -109,7 +141,7 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag):
                 })
 
                 #Epoch data into windowed trials
-                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=None, preload=True)
+                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True)
 
                 #Get the signal data from the EEG channels of epoch
                 all_segments.append(epochs.get_data()[:,:chans,:-1]) # i did this -1 because the samples was always exactly 1 too high.
@@ -179,14 +211,14 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag):
     else:
         return None, None
 
-def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag):
+def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline):
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 22 # There are actually 25 channels, but we only want to retain 22, as 3 are EOG
     names        = ['left', 'right', 'foot', 'tongue']
 
     samples = int((tmax - (tmin)) * sample_rate)
-    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag)
-    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag)
+    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
+    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
 
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names)
 
