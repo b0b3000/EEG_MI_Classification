@@ -15,9 +15,130 @@ from sklearn.linear_model import LogisticRegression
 from matplotlib import pyplot as plt
 from collections import Counter
 import seaborn as sns
+from scipy.signal import stft
+from pyriemann.utils.viz import plot_confusion_matrix
+import pandas as pd
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
+
+def plot_all_predicted_probabilities(probs, class_names=None):
+    """
+    Plot the distribution of maximum predicted probabilities for each instance,
+    including both individual dots (stripplot) and summary (boxplot).
+    
+    Args:
+        probs: np.ndarray of shape (n_samples, n_classes)
+    """
+    max_probs = probs.max(axis=1)  # get top-1 probability for each sample
+
+    plt.figure(figsize=(12, 5))
+    
+    # Create both stripplot and boxplot on the same axis
+    sns.stripplot(x=max_probs, orient='h', jitter=0.2, alpha=0.5, color='dodgerblue', label='Individual Samples')
+    sns.boxplot(x=max_probs, orient='h', color='lightgray', width=0.3, fliersize=0, linewidth=1)
+
+    plt.xlabel('Top-1 Predicted Probability')
+    plt.title('Top-1 Confidence Distribution (with Boxplot)')
+    plt.grid(True, linestyle='--', alpha=0.3)
+    plt.xlim(0, 1)
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+
+def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
+    ############################# xDAWN + RG Portion ##############################
+
+    # code is taken from PyRiemann's ERP sample script, which is decoding in 
+    # the tangent space with a logistic regression
+
+    n_components = 2  # pick some components
+
+    # set up sklearn pipeline
+    clf = make_pipeline(XdawnCovariances(n_components),
+                        TangentSpace(metric='riemann'),
+                        LogisticRegression())
+    
+    preds_rg     = np.zeros(len(Y_test))
+
+    # reshape back to (trials, channels, samples)
+    X_train_reshaped      = X_train.reshape(X_train.shape[0], chans, samples)
+    X_test_reshaped       = X_test.reshape(X_test.shape[0], chans, samples)
+
+    # train a classifier with xDAWN spatial filtering + Riemannian Geometry (RG)
+    # labels need to be back in single-column format
+    clf.fit(X_train_reshaped, Y_train.argmax(axis = -1))
+    preds_rg     = clf.predict(X_test_reshaped)
+
+    # Printing the results
+    acc2         = np.mean(preds_rg == Y_test.argmax(axis = -1))
+    print("Classification accuracy xDAWN + RG: %f " % (acc2))
+
+    plt.figure(1)
+    plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
+
+    plt.show()
+
+def convert_to_time_frequency(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
+    def compute_stft(X,dataset):
+        trial_count, channel_count, samples_per_trial = X.shape
+
+        freq_bins_centers, time_window_centers, sample_stft = stft(X[0, 0], fs=sample_rate, nperseg=segment_len, noverlap=sample_overlap, boundary=boundary, padded=padding)
+        #freq_bins_centers: 1D array of all frequency bin center frequencies
+        #time_window_centers: 1D array of all time window center times for STFT windows (in seconds)
+        #a: Test 2D array of STFT for Channel 0 Sample 0
+        # We do this so we can know the values of num windows and num freq bins
+        
+        visualise_sample_stft(freq_bins_centers, time_window_centers, sample_stft,dataset)
+
+        #Initialise 4D array to store a 2D STFT array for each trial and channel combination
+        X_time_freq = np.empty((trial_count, channel_count, len(freq_bins_centers), len(time_window_centers)), dtype=np.float32)
+
+        for trial in range(trial_count):
+            for channel in range(channel_count):
+                _, _, Z_temp = stft(X[trial, channel], fs=sample_rate, nperseg=segment_len, noverlap=sample_overlap, boundary=boundary, padded=padding)
+                X_time_freq[trial, channel] = np.abs(Z_temp)
+                #freq_bins_centers, time_window_centers are the same each time, only need to collect once
+
+        return X_time_freq, freq_bins_centers, time_window_centers
+
+    X_train_tf, freq_bins_centers, time_window_centers = compute_stft(X_train, "Training Set")
+    X_test_tf, _, _ = compute_stft(X_test, "Testing Set")
+    #freq_bins_centers, time_window_centers are the same each time, only need to collect once
+
+    return X_train_tf, X_test_tf, freq_bins_centers, time_window_centers
+
+def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
+    sample_stft = np.abs(sample_stft)  
+    print("Each sample + channel has", len(freqs), "frequency bins with", len(times), "windows each.")
+
+    fig, axs = plt.subplots(1, 2, figsize=(16, 4))
+
+    # --- Left subplot: STFT spectrogram ---
+    pcm = axs[0].pcolormesh(times, freqs, sample_stft, shading='gouraud')
+    axs[0].set_ylabel('Frequency (Hz)')
+    axs[0].set_xlabel('Time (s)')
+    axs[0].set_title('STFT Magnitude — Trial 0, Channel 0 ' + dataset)
+
+    # Vertical time grid
+    for t in times:
+        axs[0].axvline(x=t, color='gray', linestyle='--', linewidth=0.3)
+
+    # Horizontal frequency grid
+    for f in freqs:
+        axs[0].axhline(y=f, color='gray', linestyle='--', linewidth=0.3)
+
+    # Add colorbar
+    fig.colorbar(pcm, ax=axs[0], label='Magnitude')
+
+    # --- Right subplot: Frequency profile at a single time window ---
+    axs[1].bar(freqs, sample_stft[:, 1], align='center', color='skyblue')
+    axs[1].set_xlabel('Frequency (Hz)')
+    axs[1].set_ylabel('Magnitude')
+    axs[1].set_title(f'STFT at {times[1]:.2f}s (Trial 0 Channel 0) '+ dataset)
+
+    plt.tight_layout()
+    plt.show()
 
 def plot_predicted_probs(probs, num_samples_to_plot):
     subset = probs[:num_samples_to_plot]
@@ -56,21 +177,19 @@ def plot_prediction_confidence(probs, k=1.2):
         confidence_ratio = np.where(top2 != 0, top1 / top2, np.inf)
 
     # Cap extreme values at 3 for visualization clarity
-    confidence_ratio = np.clip(confidence_ratio, a_min=None, a_max=3)
+    confidence_ratio = np.clip(confidence_ratio, a_min=None, a_max=5)
 
     # Seaborn style
     sns.set(style="whitegrid")
 
     # Plot
-    plt.figure(figsize=(12, 10))
+    plt.figure(figsize=(10, 5))
     # Highlight region from 1 to k
-    plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Region (1–{k})')
+    #plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Region (1–{k})')
     sns.histplot(confidence_ratio, kde=True, bins=30, color='skyblue')
     plt.title("Histogram + KDE of Confidence Ratios (Top1 / Top2)")
     plt.xlabel("Confidence Ratio")
     plt.ylabel("Frequency")
-
-
 
 def get_mne_dataset():
     kernels, chans, samples = 1, 60, 151
@@ -220,7 +339,7 @@ def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mo
     train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
     test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
 
-    return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names)
+    return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
 #Function plots 1 epoch
 def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None):
