@@ -79,7 +79,7 @@ def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
 
     plt.show()
 
-def convert_to_time_frequency(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
+def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
     def compute_stft(X,dataset):
         trial_count, channel_count, samples_per_trial = X.shape
 
@@ -242,11 +242,11 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
             for i, file_name in enumerate(file_names):
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
-                raw = mne.io.read_raw_gdf(data_path, preload=True)
+                raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
 
                 ################################################ BANDPASS ####################################
                 
-                raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge')
+                raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
                 #raw.filter(2, None, method='iir') 
 
                 ###############################################################################################
@@ -257,10 +257,10 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                     '771': 3,   # foot
                     '772': 4,   # tongue
                     '783': 5    #unknown (eval sets)
-                })
+                }, verbose = 0)
 
                 #Epoch data into windowed trials
-                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True)
+                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True,verbose=0)
 
                 #Get the signal data from the EEG channels of epoch
                 all_segments.append(epochs.get_data()[:,:chans,:-1]) # i did this -1 because the samples was always exactly 1 too high.
