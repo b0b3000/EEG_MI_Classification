@@ -18,9 +18,47 @@ import seaborn as sns
 from scipy.signal import stft
 from pyriemann.utils.viz import plot_confusion_matrix
 import pandas as pd
+import pywt
+from pyriemann.estimation import Covariances
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
+
+def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
+    samples_per_trial = X_train.shape[2]
+    fmin = 2
+    fmax = sample_rate/2
+    wavelet = "cmor3-3"
+
+    freqs = np.linspace(fmin, fmax, num_frequencies)
+    scales = pywt.scale2frequency(wavelet, 1.0) * sample_rate / freqs #scales are analogous to frequency, but not exactly the same. Used for wavelet
+
+    def conversion_helper(X):
+        X_shape = X.shape
+        converted = np.zeros((X.shape[0], X.shape[1], num_frequencies, X.shape[2])) # num trials, num_channels, num frequencies, num samples
+        for i in range(X_shape[0]):
+            for j in range(X_shape[1]):
+                    coef, _ = pywt.cwt(X[i][j], scales, wavelet, sampling_period=1/sample_rate)
+                    power = np.abs(coef) ** 2
+                    converted[i][j] = power
+        return converted
+
+    X_train_converted = conversion_helper(X_train)
+    X_test_converted = conversion_helper(X_test)
+
+    # TEMP vvvv
+    times = np.arange(samples_per_trial) / sample_rate #500/250 = 2
+    plt.figure(figsize=(10, 6))
+    plt.contourf(times, freqs, X_train_converted[0][0], levels=100, cmap='viridis')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    plt.title('Time-Frequency Representation (Wavelet Transform)')
+    plt.colorbar(label='Power')
+    plt.tight_layout()
+    plt.show()
+
+    return X_train_converted, X_test_converted
+
 
 def plot_all_predicted_probabilities(probs, class_names=None):
     """
@@ -232,6 +270,76 @@ def get_mne_dataset():
     X = epochs.get_data() * 1000 
 
     return(X, labels, chans, kernels, samples, names)
+def exponential_moving_standardize(train_segments, test_segments, decay=0.999, init_block_size=1000):
+    """
+    Performs electrode-wise exponential moving standardization on EEG data.
+    
+    Parameters
+    ----------
+    train_segments : np.ndarray
+        Shape: (n_trials, n_channels, n_samples)
+    test_segments : np.ndarray
+        Shape: (n_trials, n_channels, n_samples)
+    decay : float
+        EMA decay factor (default: 0.999)
+    init_block_size : int
+        Number of initial samples to use for computing starting mean and variance
+        from the training set (per channel).
+    
+    Returns
+    -------
+    standardized_train, standardized_test : np.ndarray
+        Standardized versions of train_segments and test_segments.
+    """
+    
+    # Concatenate trials into continuous data for EMA computation
+    train_cont = np.concatenate(train_segments, axis=1)  # shape: (n_channels, total_samples)
+    test_cont  = np.concatenate(test_segments, axis=1)
+
+    n_channels, n_total_train_samples = train_cont.shape
+    _, n_total_test_samples = test_cont.shape
+
+    # Initialize mean and variance from first `init_block_size` samples of TRAIN ONLY
+    init_mean = np.mean(train_cont[:, :init_block_size], axis=1, keepdims=True)
+    init_var  = np.var(train_cont[:, :init_block_size], axis=1, keepdims=True)
+
+    # Allocate outputs
+    train_out = np.zeros_like(train_cont)
+    test_out  = np.zeros_like(test_cont)
+
+    # Initialize running stats
+    mean_t = init_mean.copy()
+    var_t  = init_var.copy()
+
+    # ---- Standardize TRAIN ----
+    for t in range(n_total_train_samples):
+        x_t = train_cont[:, t:t+1]  # shape: (n_channels, 1)
+        mean_t = (1 - decay) * x_t + decay * mean_t
+        var_t  = (1 - decay) * (x_t - mean_t) ** 2 + decay * var_t
+        train_out[:, t:t+1] = (x_t - mean_t) / np.sqrt(var_t + 1e-8)
+
+    # ---- Standardize TEST ----
+    # Carry over mean_t and var_t from the end of TRAIN
+    for t in range(n_total_test_samples):
+        x_t = test_cont[:, t:t+1]
+        mean_t = (1 - decay) * x_t + decay * mean_t
+        var_t  = (1 - decay) * (x_t - mean_t) ** 2 + decay * var_t
+        test_out[:, t:t+1] = (x_t - mean_t) / np.sqrt(var_t + 1e-8)
+
+    # Reshape back to original trial structure
+    def split_trials(standardized, original_segments):
+        result = []
+        idx = 0
+        for trial in original_segments:
+            n_samp = trial.shape[1]
+            result.append(standardized[:, idx:idx+n_samp])
+            idx += n_samp
+        return np.array(result)
+
+    standardized_train = split_trials(train_out, train_segments)
+    standardized_test  = split_trials(test_out, test_segments)
+
+    return standardized_train, standardized_test
 
 def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline):
     if file_names:
@@ -269,49 +377,6 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 labels_raw = labels_raw["classlabel"].reshape(-1) - 1 #Change from 1,2,3,4 to 0,1,2,3 because the EEGNet model likes it
                 all_labels.append(labels_raw)
     
-
-        elif mode == "mat":
-            directory = DATASET_LOCATION + "001-2014/" #.mat files locations
-            
-            for i, file_name in enumerate(file_names):
-
-                ####################### GET FILE #######################
-                print("\n", file_name)
-                path = directory + file_name + ".mat"
-                data_dict = loadmat(path)
-                data = data_dict['data'].squeeze()[3:]# First 3 are EOG calibration, not MI
-                
-                k, cum_time = 0,0
-                trials_list = []
-                for t in data:             
-                    k += 1
-                    cum_time += t['X'][0,0].shape[0]
-                    trials = t['trial'][0, 0][:,0]
-                    adjusted_trials = trials + cum_time
-                    trials_list.append(adjusted_trials)
-                trials = np.concatenate(trials_list)
-
-                X_list = [t['X'][0, 0][:, :22] for t in data]
-                X = np.concatenate(X_list, axis=0)
-
-                sample_rate = data[0]['fs'][0][0][0][0]
-
-                y_list_i = [t['y'][0, 0][:,0] for t in data]
-                y_i = np.concatenate(y_list_i)
-                y_i = y_i - 1
-
-                raw = mne.io.RawArray(X.T, mne.create_info(ch_names=[f"EEG{j+1}" for j in range(X.shape[1])], sfreq=sample_rate, ch_types="eeg"))
-                raw.filter(4, 40, method='iir') 
-
-                events = np.column_stack([trials,np.zeros_like(trials), y_i])
-                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=None, preload=True, reject_by_annotation=False)
-                print(Counter(tuple(r) for r in epochs.drop_log))
-
-                all_segments.append(epochs.get_data()[:,:chans,:-1])
-                all_labels.append(epochs.events[:, 2].astype(int))
-                print(all_segments[i].shape)
-    
-
         #combining all elements of tracked list
         labels = np.concatenate(all_labels, axis=0)
         segments= np.concatenate(all_segments, axis=0)
@@ -338,6 +403,71 @@ def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mo
     samples = int((tmax - (tmin)) * sample_rate)
     train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
     test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
+
+    train_segments, test_segments = exponential_moving_standardize(train_segments, test_segments)
+    
+    return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
+
+def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline):
+    if file_names:
+        all_segments = []
+        all_labels = []
+        if mode == "gdf":
+            directory = DATASET_LOCATION + "BCICIV_2b_gdf/" #.gdf files locations
+            for i, file_name in enumerate(file_names):
+                data_path = directory + file_name + ".gdf"
+                labels_path = directory + "true_labels/" + file_name + ".mat"
+                raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
+
+                ################################################ BANDPASS ####################################
+                
+                raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
+                #raw.filter(2, None, method='iir') 
+
+                ###############################################################################################
+
+                events, _ = mne.events_from_annotations(raw, event_id = {
+                    '769': 1,   # left hand
+                    '770': 2,   # right hand
+                    '783': 3   #unknown (eval sets)
+                }, verbose = 0)
+
+                #Epoch data into windowed trials
+                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True,verbose=0)
+
+                #Get the signal data from the EEG channels of epoch
+                all_segments.append(epochs.get_data()[:,:chans,:-1]) # i did this -1 because the samples was always exactly 1 too high.
+
+                labels_raw = loadmat(labels_path)
+                labels_raw = labels_raw["classlabel"].reshape(-1) - 1 #Change from 1,2,3,4 to 0,1,2,3 because the EEGNet model likes it
+                all_labels.append(labels_raw)
+    
+        #combining all elements of tracked list
+        labels = np.concatenate(all_labels, axis=0)
+        segments= np.concatenate(all_segments, axis=0)
+        
+        ############ AMPLITUDE MAG ##################################
+        
+        segments = segments * amp_mag
+
+        ##########################################################
+
+        # NP formatting
+        segments = np.array(segments)
+        labels = np.array(labels)
+
+        return segments, labels
+    else:
+        return None, None
+
+def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline):
+    sample_rate = 250 #From BCI Dataset description
+    kernels, chans = 1, 3 # There are actually 6 channels, but we only want to retain 3, as 3 are EOG
+    names        = ['left', 'right']
+
+    samples = int((tmax - (tmin)) * sample_rate)
+    train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
+    test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
 
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 

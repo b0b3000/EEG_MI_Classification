@@ -1,0 +1,40 @@
+if mode == "mat":
+    directory = DATASET_LOCATION + "001-2014/" #.mat files locations
+    
+    for i, file_name in enumerate(file_names):
+
+        ####################### GET FILE #######################
+        print("\n", file_name)
+        path = directory + file_name + ".mat"
+        data_dict = loadmat(path)
+        data = data_dict['data'].squeeze()[3:]# First 3 are EOG calibration, not MI
+        
+        k, cum_time = 0,0
+        trials_list = []
+        for t in data:             
+            k += 1
+            cum_time += t['X'][0,0].shape[0]
+            trials = t['trial'][0, 0][:,0]
+            adjusted_trials = trials + cum_time
+            trials_list.append(adjusted_trials)
+        trials = np.concatenate(trials_list)
+
+        X_list = [t['X'][0, 0][:, :22] for t in data]
+        X = np.concatenate(X_list, axis=0)
+
+        sample_rate = data[0]['fs'][0][0][0][0]
+
+        y_list_i = [t['y'][0, 0][:,0] for t in data]
+        y_i = np.concatenate(y_list_i)
+        y_i = y_i - 1
+
+        raw = mne.io.RawArray(X.T, mne.create_info(ch_names=[f"EEG{j+1}" for j in range(X.shape[1])], sfreq=sample_rate, ch_types="eeg"))
+        raw.filter(4, 40, method='iir') 
+
+        events = np.column_stack([trials,np.zeros_like(trials), y_i])
+        epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=None, preload=True, reject_by_annotation=False)
+        print(Counter(tuple(r) for r in epochs.drop_log))
+
+        all_segments.append(epochs.get_data()[:,:chans,:-1])
+        all_labels.append(epochs.events[:, 2].astype(int))
+        print(all_segments[i].shape)

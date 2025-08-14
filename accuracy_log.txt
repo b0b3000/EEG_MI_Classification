@@ -1,0 +1,269 @@
+Run 1 - Accuracy: 0.7222
+Run 2 - Accuracy: 0.2500
+Run 3 - Accuracy: 0.7396
+Run 4 - Accuracy: 0.4375
+Run 5 - Accuracy: 0.2812
+Run 6 - Accuracy: 0.4132
+Run 7 - Accuracy: 0.7674
+Run 8 - Accuracy: 0.7708
+Run 9 - Accuracy: 0.7951
+Run 1 - Accuracy: 0.7396
+Run 2 - Accuracy: 0.2847
+Run 3 - Accuracy: 0.8125
+Run 4 - Accuracy: 0.3438
+Run 5 - Accuracy: 0.3229
+Run 6 - Accuracy: 0.3507
+Run 7 - Accuracy: 0.7708
+Run 8 - Accuracy: 0.7431
+Run 9 - Accuracy: 0.7743
+------------------------------------------------
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout, Stop threshold: 50------------------------------------------------
+------------------------------------------------
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout, Stop threshold: 50
+------------------------------------------------
+Run 1 - Accuracy: 0.6667
+Run 2 - Accuracy: 0.2465
+Run 3 - Accuracy: 0.8090
+Run 4 - Accuracy: 0.3854
+Run 5 - Accuracy: 0.2639
+Run 6 - Accuracy: 0.3333
+Run 7 - Accuracy: 0.6701
+Run 8 - Accuracy: 0.7188
+Run 9 - Accuracy: 0.7951
+Total Accuracy: 0.5432
+------------------------------------------------
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Run 1 - Accuracy: 0.6736
+Run 2 - Accuracy: 0.3507
+Run 3 - Accuracy: 0.7257
+Run 4 - Accuracy: 0.5208
+Run 5 - Accuracy: 0.3507
+Run 6 - Accuracy: 0.3611
+------------------------------------------------
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Run 7 - Accuracy: 0.5590
+Run 8 - Accuracy: 0.6667
+Run 9 - Accuracy: 0.7326
+Total Accuracy: 0.5490
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.4861
+Subject 1 Fold 2 - Accuracy: 0.6111
+Subject 1 Fold 3 - Accuracy: 0.7083
+Subject 1 Fold 4 - Accuracy: 0.5833
+Subject 1 Avg (4-fold) - Accuracy: 0.5972
+Subject 2 Fold 1 - Accuracy: 0.3611
+Subject 2 Fold 2 - Accuracy: 0.2639
+Subject 2 Fold 3 - Accuracy: 0.4861
+Subject 2 Fold 4 - Accuracy: 0.3472
+Subject 2 Avg (4-fold) - Accuracy: 0.3646
+Subject 3 Fold 1 - Accuracy: 0.5556
+Subject 3 Fold 2 - Accuracy: 0.6528
+Subject 3 Fold 3 - Accuracy: 0.7083
+Subject 3 Fold 4 - Accuracy: 0.5833
+Subject 3 Avg (4-fold) - Accuracy: 0.6250
+Subject 4 Fold 1 - Accuracy: 0.3472
+Subject 4 Fold 2 - Accuracy: 0.3611
+Subject 4 Fold 3 - Accuracy: 0.3472
+Subject 4 Fold 4 - Accuracy: 0.5556
+Subject 4 Avg (4-fold) - Accuracy: 0.4028
+Subject 5 Fold 1 - Accuracy: 0.2639
+Subject 5 Fold 2 - Accuracy: 0.4028
+Subject 5 Fold 3 - Accuracy: 0.3472
+Subject 5 Fold 4 - Accuracy: 0.3194
+Subject 5 Avg (4-fold) - Accuracy: 0.3333
+Subject 6 Fold 1 - Accuracy: 0.1528
+Subject 6 Fold 2 - Accuracy: 0.2778
+Subject 6 Fold 3 - Accuracy: 0.1806
+Subject 6 Fold 4 - Accuracy: 0.2361
+Subject 6 Avg (4-fold) - Accuracy: 0.2118
+Subject 7 Fold 1 - Accuracy: 0.5139
+Subject 7 Fold 2 - Accuracy: 0.6806
+Subject 7 Fold 3 - Accuracy: 0.5694
+Subject 7 Fold 4 - Accuracy: 0.5556
+Subject 7 Avg (4-fold) - Accuracy: 0.5799
+Subject 8 Fold 1 - Accuracy: 0.5139
+Subject 8 Fold 2 - Accuracy: 0.6528
+Subject 8 Fold 3 - Accuracy: 0.6944
+Subject 8 Fold 4 - Accuracy: 0.6389
+Subject 8 Avg (4-fold) - Accuracy: 0.6250
+Subject 9 Fold 1 - Accuracy: 0.6111
+Subject 9 Fold 2 - Accuracy: 0.6944
+Subject 9 Fold 3 - Accuracy: 0.6806
+Subject 9 Fold 4 - Accuracy: 0.7361
+Subject 9 Avg (4-fold) - Accuracy: 0.6806
+Overall Average (subjects): 0.4911
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.5000
+Subject 1 Fold 2 - Accuracy: 0.5000
+Subject 1 Fold 3 - Accuracy: 0.6389
+Subject 1 Fold 4 - Accuracy: 0.5694
+Subject 1 Avg (4-fold) - Accuracy: 0.5521
+Subject 2 Fold 1 - Accuracy: 0.2917
+Subject 2 Fold 2 - Accuracy: 0.1944
+Subject 2 Fold 3 - Accuracy: 0.4028
+Subject 2 Fold 4 - Accuracy: 0.3750
+Subject 2 Avg (4-fold) - Accuracy: 0.3160
+Subject 3 Fold 1 - Accuracy: 0.6111
+Subject 3 Fold 2 - Accuracy: 0.7083
+Subject 3 Fold 3 - Accuracy: 0.7222
+Subject 3 Fold 4 - Accuracy: 0.5972
+Subject 3 Avg (4-fold) - Accuracy: 0.6597
+Subject 4 Fold 1 - Accuracy: 0.4167
+Subject 4 Fold 2 - Accuracy: 0.3611
+Subject 4 Fold 3 - Accuracy: 0.3472
+Subject 4 Fold 4 - Accuracy: 0.4583
+Subject 4 Avg (4-fold) - Accuracy: 0.3958
+Subject 5 Fold 1 - Accuracy: 0.2917
+Subject 5 Fold 2 - Accuracy: 0.3194
+Subject 5 Fold 3 - Accuracy: 0.3472
+Subject 5 Fold 4 - Accuracy: 0.3056
+Subject 5 Avg (4-fold) - Accuracy: 0.3160
+Subject 6 Fold 1 - Accuracy: 0.3472
+Subject 6 Fold 2 - Accuracy: 0.2500
+Subject 6 Fold 3 - Accuracy: 0.2917
+Subject 6 Fold 4 - Accuracy: 0.2639
+Subject 6 Avg (4-fold) - Accuracy: 0.2882
+Subject 7 Fold 1 - Accuracy: 0.5972
+Subject 7 Fold 2 - Accuracy: 0.6528
+Subject 7 Fold 3 - Accuracy: 0.5694
+Subject 7 Fold 4 - Accuracy: 0.5833
+Subject 7 Avg (4-fold) - Accuracy: 0.6007
+Subject 8 Fold 1 - Accuracy: 0.6944
+Subject 8 Fold 2 - Accuracy: 0.6667
+Subject 8 Fold 3 - Accuracy: 0.6250
+Subject 8 Fold 4 - Accuracy: 0.6111
+Subject 8 Avg (4-fold) - Accuracy: 0.6493
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.4722
+Subject 1 Fold 2 - Accuracy: 0.6667
+Subject 1 Fold 3 - Accuracy: 0.9306
+Subject 1 Fold 4 - Accuracy: 0.9306
+Subject 1 Avg (4-fold) - Accuracy: 0.7500
+------------------------------------------------
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Run 1 - Accuracy: 0.6493
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.4167
+Subject 1 Fold 2 - Accuracy: 0.5972
+Subject 1 Fold 3 - Accuracy: 0.9861
+Subject 1 Fold 4 - Accuracy: 0.9444
+Subject 1 Avg (4-fold) - Accuracy: 0.7361
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.5000
+Subject 1 Fold 2 - Accuracy: 0.6528
+Subject 1 Fold 3 - Accuracy: 0.8611
+Subject 1 Fold 4 - Accuracy: 0.8056
+Subject 1 Avg (4-fold) - Accuracy: 0.7049
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.2222
+Subject 1 Fold 2 - Accuracy: 0.4583
+Subject 1 Fold 3 - Accuracy: 0.5556
+Subject 1 Fold 4 - Accuracy: 0.5556
+Subject 1 Avg (4-fold) - Accuracy: 0.4479
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.3333
+Subject 1 Fold 2 - Accuracy: 0.4722
+Subject 1 Fold 3 - Accuracy: 0.5417
+Subject 1 Fold 4 - Accuracy: 0.4861
+Subject 1 Avg (4-fold) - Accuracy: 0.4583
+Subject 1 - TEST Accuracy: 0.5694
+Subject 2 Fold 1 - Accuracy: 0.3472
+Subject 2 Fold 2 - Accuracy: 0.3333
+Subject 2 Fold 3 - Accuracy: 0.5278
+Subject 2 Fold 4 - Accuracy: 0.4028
+Subject 2 Avg (4-fold) - Accuracy: 0.4028
+Subject 2 - TEST Accuracy: 0.2639
+Subject 3 Fold 1 - Accuracy: 0.2500
+Subject 3 Fold 2 - Accuracy: 0.3889
+Subject 3 Fold 3 - Accuracy: 0.5972
+Subject 3 Fold 4 - Accuracy: 0.5972
+Subject 3 Avg (4-fold) - Accuracy: 0.4583
+Subject 3 - TEST Accuracy: 0.6458
+------------------------------------------------
+CV
+New Run. Dataset: BCI 2a. input: timeseries, model: EEGNet, tmin, tmax: 0.5, 2.5 bandpass: [4, 40], Baseline: None, Amplitude Magnification: 1000, STFT -> Segment Length: 128, Sample Overlap: 64, Boundary: None, Padding: True, Wavelet -> n_freqs: 30, Model Hyperparams -> Dropout Rate: 0.5, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: SpatialDropout2D, Stop threshold: 0
+------------------------------------------------
+Subject 1 Fold 1 - Accuracy: 0.5417
+Subject 1 Fold 2 - Accuracy: 0.6250
+Subject 1 Fold 3 - Accuracy: 0.9444
+Subject 1 Fold 4 - Accuracy: 0.8472
+Subject 1 Avg (4-fold) - Accuracy: 0.7396
+Subject 1 - TEST Accuracy: 0.5833
+Subject 2 Fold 1 - Accuracy: 0.3333
+Subject 2 Fold 2 - Accuracy: 0.4167
+Subject 2 Fold 3 - Accuracy: 0.8889
+Subject 2 Fold 4 - Accuracy: 0.8333
+Subject 2 Avg (4-fold) - Accuracy: 0.6181
+Subject 2 - TEST Accuracy: 0.2674
+Subject 3 Fold 1 - Accuracy: 0.5556
+Subject 3 Fold 2 - Accuracy: 0.7083
+Subject 3 Fold 3 - Accuracy: 0.8750
+Subject 3 Fold 4 - Accuracy: 0.8472
+Subject 3 Avg (4-fold) - Accuracy: 0.7465
+Subject 3 - TEST Accuracy: 0.6562
+Subject 4 Fold 1 - Accuracy: 0.3472
+Subject 4 Fold 2 - Accuracy: 0.4583
+Subject 4 Fold 3 - Accuracy: 0.7778
+Subject 4 Fold 4 - Accuracy: 0.8611
+Subject 4 Avg (4-fold) - Accuracy: 0.6111
+Subject 4 - TEST Accuracy: 0.4132
+Subject 5 Fold 1 - Accuracy: 0.3750
+Subject 5 Fold 2 - Accuracy: 0.4167
+Subject 5 Fold 3 - Accuracy: 0.6944
+Subject 5 Fold 4 - Accuracy: 0.6944
+Subject 5 Avg (4-fold) - Accuracy: 0.5451
+Subject 5 - TEST Accuracy: 0.3021
+Subject 6 Fold 1 - Accuracy: 0.3194
+Subject 6 Fold 2 - Accuracy: 0.4444
+Subject 6 Fold 3 - Accuracy: 0.9167
+Subject 6 Fold 4 - Accuracy: 0.9583
+Subject 6 Avg (4-fold) - Accuracy: 0.6597
+Subject 6 - TEST Accuracy: 0.3750
+Subject 7 Fold 1 - Accuracy: 0.5278
+Subject 7 Fold 2 - Accuracy: 0.4306
+Subject 7 Fold 3 - Accuracy: 0.9167
+Subject 7 Fold 4 - Accuracy: 0.9167
+Subject 7 Avg (4-fold) - Accuracy: 0.6979
+Subject 7 - TEST Accuracy: 0.5069
+Subject 8 Fold 1 - Accuracy: 0.6250
+Subject 8 Fold 2 - Accuracy: 0.5972
+Subject 8 Fold 3 - Accuracy: 0.9028
+Subject 8 Fold 4 - Accuracy: 0.8194
+Subject 8 Avg (4-fold) - Accuracy: 0.7361
+Subject 8 - TEST Accuracy: 0.5868
+Subject 9 Fold 1 - Accuracy: 0.6528
+Subject 9 Fold 2 - Accuracy: 0.7778
+Subject 9 Fold 3 - Accuracy: 0.8472
+Subject 9 Fold 4 - Accuracy: 0.9028
+Subject 9 Avg (4-fold) - Accuracy: 0.7951
+Subject 9 - TEST Accuracy: 0.6458
+Total Accuracy: 0.4819
+Overall Average (subjects): 0.4819
