@@ -4,9 +4,9 @@ import numpy as np
 import mne
 from mne import io
 from mne.datasets import sample
-from models import EEGNet
+from models import EEGNet, EEGNet_Bob, ShallowConvNet, DeepConvNet, EEGNet_TF, EEGNet_Wavelet, EEGNet_Wavelet2, EEGNet_Wavelet3
 from tensorflow.keras import utils as np_utils
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras import backend as K
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
@@ -351,6 +351,10 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
+                ica = mne.preprocessing.ICA(n_components=20, random_state=97)
+                ica.fit(raw)
+                ica.exclude = [0, 1]  # e.g., components matching eye blinks
+                raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
                 
@@ -418,6 +422,10 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
+                ica = mne.preprocessing.ICA(n_components=20, random_state=97)
+                ica.fit(raw)
+                ica.exclude = [0, 1]  # e.g., components matching eye blinks
+                raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
                 
@@ -495,3 +503,152 @@ def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None
     plt.tight_layout()
     plt.title(title)
     plt.show()
+
+def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs):
+    if input_format == "timeseries":
+        if model_type == "EEGNet":
+            
+            model = EEGNet(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)  #try spatialdropout2d
+            
+        elif model_type == "Shallow":
+
+            model = ShallowConvNet(classes, chans, samples, dropoutRate)
+
+        elif model_type == "Deep":
+
+            model = DeepConvNet(classes, chans, samples, dropoutRate)
+        
+        elif model_type == "EEGNet_Bob":
+            model = EEGNet_Bob(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType) 
+
+    elif input_format == "stft": #time frequency
+        print(len(time_window_centers))
+        if model_type == "EEGNet":
+            #Shape the 2d STFTs into 1d timeseries and feed back into EEGnet (bad idea i think)
+            
+            X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2] * X_train.shape[3], 1)
+            X_validate = X_validate.reshape(X_validate.shape[0], X_validate.shape[1], X_validate.shape[2] * X_validate.shape[3], 1)
+            X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2] * X_test.shape[3], 1)
+
+            model = EEGNet(classes, chans, len(freq_bins_centers)*len(time_window_centers), dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
+        else:
+            model = EEGNet_TF(classes, chans, len(freq_bins_centers), len(time_window_centers), dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
+
+    elif input_format == "wavelet":
+        model = EEGNet_Wavelet3(classes, chans, n_freqs, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
+
+    # compile the model and set the optimizers
+    model.compile(loss='categorical_crossentropy', optimizer='adam', 
+                metrics = ['accuracy'])
+
+    numParams    = model.count_params()    
+
+    # set a valid path for your system to record model checkpoints
+    checkpointer = ModelCheckpoint(filepath='/tmp/checkpoint.h5', verbose=1, save_best_only=True)
+
+    ###############################################################################
+    # if the classification task was imbalanced (significantly more trials in one
+    # class versus the others) you can assign a weight to each class during 
+    # optimization to balance it out. This data is approximately balanced so we 
+    # don't need to do this, but is shown here for illustration/completeness. 
+    ###############################################################################
+
+    class_weights = {0:1, 1:1, 2:1, 3:1}
+
+    #Verbose can change
+    print("NumParams: ", {numParams})
+
+    if stop_threshold == 0:
+        callbacks = [checkpointer]
+    else:
+        early_stop = EarlyStopping(
+            monitor='val_loss',       # Metric to monitor
+            patience=stop_threshold,              # Stop if no improvement after 30 epochs
+            restore_best_weights=True  # Roll back to best weights
+        )
+        callbacks=[checkpointer, early_stop]
+
+    return X_train, X_validate, X_test, model, numParams, checkpointer, callbacks, class_weights
+
+def prepare_data(X_train, X_test,Y_train, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs):
+    freq_bins_centers, time_window_centers = None, None  
+    if input_format == "stft":
+        X_train, X_test, freq_bins_centers, time_window_centers = convert_stft(X_train, X_test, sample_rate, segment_len, sample_overlap, boundary, padding)
+    if input_format=="wavelet":
+        X_train, X_test = convert_wavelet(X_train, X_test,sample_rate, n_freqs)
+
+    # take 50/25/25 percent of the data to train/validate/test
+    X_train, X_validate, Y_train, Y_validate = train_test_split(X_train, Y_train, test_size=0.2, stratify=Y_train)
+    if input_format == "timeseries":
+        print(X_train.shape)
+        X_train      = X_train.reshape(X_train.shape[0], chans, samples, kernels)
+        X_validate   = X_validate.reshape(X_validate.shape[0], chans, samples, kernels)
+        X_test       = X_test.reshape(X_test.shape[0], chans, samples, kernels)
+
+
+    Y_train = np_utils.to_categorical(Y_train) # One hot encoding format for probabilistic classification
+    Y_validate = np_utils.to_categorical(Y_validate) # One hot encoding format for probabilistic classification
+    Y_test = np_utils.to_categorical(Y_test) # One hot encoding format for probabilistic classification
+
+    # 2) Standardize per-channel (over time & trials)
+    mean  = X_train.mean(axis = (0,2), keepdims=True)
+    std   = X_train.std(axis = (0,2), keepdims=True)
+    X_train    = (X_train   - mean) / std
+    X_validate = (X_validate- mean) / std
+    X_test     = (X_test    - mean) / std
+
+    # The ChatGPT generated wavelet model likes this format input
+
+    if input_format=="wavelet":
+        X_train = np.transpose(X_train, (0, 2, 3, 1))
+        X_validate = np.transpose(X_validate, (0, 2, 3, 1)) 
+        X_test = np.transpose(X_test, (0, 2, 3, 1))
+    
+    """if input_format=="wavelet":
+        chans = 3
+        X_train = X_train[:,:,:,[7,9,11]]
+        X_validate = X_validate[:,:,:,[7,9,11]]
+        X_test = X_test[:,:,:,[7,9,11]]"""
+
+        # Keep only C3, C4 and CZ channels for wavelet (reccomended by wavelet paper)
+        # Does not seem to work
+    
+    return X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers
+
+def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies=0 ):
+    # load optimal model weights based on validation accuracy
+    model.load_weights('/tmp/checkpoint.h5')
+
+    #predict
+    probs = model.predict(X_test)
+    preds = probs.argmax(axis = -1)
+    acc = np.mean(preds == Y_test.argmax(axis=-1))
+    sum_accuracies += acc
+    best_epoch = fittedModelHistory.history['val_loss'].index(min(fittedModelHistory.history['val_loss']))
+
+    print(model.summary())
+    print("Test set accuracy: %f " % (acc))
+    print("Best epoch: ", best_epoch)
+    print("Average confidence of selected class: ", np.mean(probs.max(axis=1)))
+
+    # Log accuracy to file
+    with open("accuracy_log.txt", "a") as f:
+        f.write(f"Subject {i+1} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
+
+    plt.figure(0)
+    plot_confusion_matrix(preds, Y_test.argmax(axis = -1), names, title = 'EEGNet-8,2')
+
+    # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
+    #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
+
+    # Show only the first 10 samples for clarity
+    samples_to_plot = 10
+    plot_predicted_probs(probs, samples_to_plot)
+
+    # Plot all confidences
+    plot_prediction_confidence(probs)
+
+    # plot all selected probs
+    plot_all_predicted_probabilities(probs)
+
+    return sum_accuracies

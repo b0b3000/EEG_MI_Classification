@@ -7,6 +7,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras import utils as np_utils
 from joblib import Parallel, delayed
 import os
+import tempfile
 
 # ======== FIXED CONFIGS ========
 input_format = "timeseries"
@@ -102,7 +103,9 @@ def run_combo(combo_idx, combo):
             )
             model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-            checkpoint_path = '/tmp/checkpoint.h5'
+
+
+            checkpoint_path = tempfile.mktemp(suffix=".h5", prefix=f"chkpt_{combo_idx}_")
             checkpointer = ModelCheckpoint(filepath=checkpoint_path, verbose=0, save_best_only=True)
             callbacks = [checkpointer]
             if stop_threshold > 0:
