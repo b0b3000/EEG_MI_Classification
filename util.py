@@ -177,7 +177,7 @@ def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
 
     plt.tight_layout()
     plt.show()
-
+'''
 def plot_predicted_probs(probs, num_samples_to_plot):
     subset = probs[:num_samples_to_plot]
 
@@ -196,7 +196,34 @@ def plot_predicted_probs(probs, num_samples_to_plot):
     plt.legend()
     plt.xticks(rotation=45)
     plt.tight_layout()
+    plt.show()'''
+
+def plot_predicted_probs(probs, num_samples_to_plot):
+    subset = probs[:num_samples_to_plot]
+
+    labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
+    classes = [f'Class {i}' for i in range(probs.shape[1])]
+
+    plt.figure(figsize=(12, 6))
+
+    for j in range(num_samples_to_plot):
+        # Sort probabilities for this sample in descending order
+        sorted_indices = np.argsort(subset[j])[::-1]
+        sorted_probs = subset[j][sorted_indices]
+        sorted_classes = [classes[k] for k in sorted_indices]
+
+        bottom = 0
+        for prob, cls in zip(sorted_probs, sorted_classes):
+            plt.bar(labels[j], prob, bottom=bottom, label=cls if j == 0 else "")
+            bottom += prob
+
+    plt.ylabel('Probability')
+    plt.title(f'Class Probabilities (First {num_samples_to_plot} Samples)')
+    plt.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     plt.show()
+
 
 def plot_prediction_confidence(probs, k=1.2):
 
@@ -353,7 +380,7 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
                 ica = mne.preprocessing.ICA(n_components=20, random_state=97)
                 ica.fit(raw)
-                ica.exclude = [0, 1]  # e.g., components matching eye blinks
+                ica.exclude = [22,23,24]  # e.g., components matching eye blinks
                 raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
@@ -570,21 +597,32 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
 
     return X_train, X_validate, X_test, model, numParams, checkpointer, callbacks, class_weights
 
-def prepare_data(X_train, X_test,Y_train, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs):
+def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, cross_validate, train_index=None, val_index=None, fold_step=None):
     freq_bins_centers, time_window_centers = None, None  
     if input_format == "stft":
         X_train, X_test, freq_bins_centers, time_window_centers = convert_stft(X_train, X_test, sample_rate, segment_len, sample_overlap, boundary, padding)
     if input_format=="wavelet":
         X_train, X_test = convert_wavelet(X_train, X_test,sample_rate, n_freqs)
 
-    # take 50/25/25 percent of the data to train/validate/test
-    X_train, X_validate, Y_train, Y_validate = train_test_split(X_train, Y_train, test_size=0.2, stratify=Y_train)
+    if cross_validate:
+        print(f"Start fold {fold_step}")
+        print("Train", train_index)
+        print("Val", val_index)
+        X_train = X_train_raw[train_index]
+        Y_train = Y_train_raw[train_index]
+        X_validate   = X_train_raw[val_index]
+        Y_validate   = Y_train_raw[val_index]
+        print(X_train.shape)
+        print(X_validate.shape)
+    else:
+        # take 50/25/25 percent of the data to train/validate/test
+        X_train, X_validate, Y_train, Y_validate = train_test_split(X_train_raw, Y_train_raw, test_size=0.2, stratify=Y_train)
+
     if input_format == "timeseries":
         print(X_train.shape)
         X_train      = X_train.reshape(X_train.shape[0], chans, samples, kernels)
         X_validate   = X_validate.reshape(X_validate.shape[0], chans, samples, kernels)
         X_test       = X_test.reshape(X_test.shape[0], chans, samples, kernels)
-
 
     Y_train = np_utils.to_categorical(Y_train) # One hot encoding format for probabilistic classification
     Y_validate = np_utils.to_categorical(Y_validate) # One hot encoding format for probabilistic classification
@@ -615,7 +653,7 @@ def prepare_data(X_train, X_test,Y_train, Y_test, sample_rate, segment_len, samp
     
     return X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers
 
-def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies=0 ):
+def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies=0, gui_plots=True, fold_step=None):
     # load optimal model weights based on validation accuracy
     model.load_weights('/tmp/checkpoint.h5')
 
@@ -633,22 +671,26 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, s
 
     # Log accuracy to file
     with open("accuracy_log.txt", "a") as f:
-        f.write(f"Subject {i+1} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
+        if not fold_step ==None:
+            f.write(f"Subject {i+1} Fold {fold_step} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
+        else:
+            f.write(f"Subject {i+1} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
 
-    plt.figure(0)
-    plot_confusion_matrix(preds, Y_test.argmax(axis = -1), names, title = 'EEGNet-8,2')
+    if gui_plots:
+        plt.figure(0)
+        plot_confusion_matrix(preds, Y_test.argmax(axis = -1), names, title = 'EEGNet-8,2')
 
-    # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
-    #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
+        # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
+        #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
 
-    # Show only the first 10 samples for clarity
-    samples_to_plot = 10
-    plot_predicted_probs(probs, samples_to_plot)
+        # Show only the first 10 samples for clarity
+        samples_to_plot = 10
+        plot_predicted_probs(probs, samples_to_plot)
 
-    # Plot all confidences
-    plot_prediction_confidence(probs)
+        # Plot all confidences
+        plot_prediction_confidence(probs)
 
-    # plot all selected probs
-    plot_all_predicted_probabilities(probs)
+        # plot all selected probs
+        plot_all_predicted_probabilities(probs)
 
-    return sum_accuracies
+    return sum_accuracies, acc

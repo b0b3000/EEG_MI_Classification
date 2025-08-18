@@ -60,12 +60,12 @@ for i in range(len(training_files_list)):
     X_train, Y_train, X_test, Y_test, chans, kernels, samples, names, sample_rate = util.get_bci_2a(training_files, test_files, bandpass = bandpass,tmin = tmin, tmax = tmax,mode = "gdf",amp_mag= amplitude_magnification, baseline=baseline)
     
     X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers = util.prepare_data(X_train, X_test,Y_train, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs)
-    
+    print(X_train.shape)
     X_train, X_validate, X_test, model, numParams, checkpointer, callbacks, class_weights = util.prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs)
     
     fittedModelHistory = model.fit(X_train, Y_train, batch_size = batch_size, epochs = epochs, verbose = 0, validation_data=(X_validate, Y_validate),callbacks=callbacks)
     
-    sum_accuracies = util.predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies)
+    sum_accuracies, _ = util.predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies, gui_plots=True)
 
 avg_acc = sum_accuracies/9
 print("AVERAGE ACCURACY OF ALL SUBJECTS: ", avg_acc)
