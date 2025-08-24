@@ -2,6 +2,7 @@ import sys
 sys.path.append("/Users/bobbeashel/Desktop/CITS4010/ARL-EEGMODELS/arl-eegmodels-master")
 print(sys.path)
 import numpy
+
 print(numpy.version.version)
 """
  ARL_EEGModels - A collection of Convolutional Neural Network models for EEG
@@ -55,6 +56,7 @@ from tensorflow.keras.regularizers import l1_l2
 from tensorflow.keras.layers import Input, Flatten
 from tensorflow.keras.constraints import max_norm
 from tensorflow.keras import backend as K
+from tensorflow.keras import regularizers
 
 def extra_layer(input_tensor, ratio=8):
     filters = input_tensor.shape[-1]
@@ -66,33 +68,29 @@ def extra_layer(input_tensor, ratio=8):
 
 def EEGNet_Bob(nb_classes, Chans = 64, Samples = 128, 
              dropoutRate = 0.5, kernLength = 64, F1 = 8, 
-             D = 2, F2 = 16, norm_rate = 0.25, dropoutType = 'SpatialDropout2D'):
+             D = 2, F2 = 16, norm_rate = 0.25, dropoutType = 'SpatialDropout2D', l2_penalty=0.1):
+    
+    if l2_penalty:
+        l2=regularizers.l2(l2_penalty)
+    else:
+        l2=None
 
     if dropoutType == 'SpatialDropout2D':
         dropoutType = SpatialDropout2D
     elif dropoutType == 'Dropout':
         dropoutType = Dropout
-    else:
-        raise ValueError('dropoutType must be one of SpatialDropout2D '
-                         'or Dropout, passed as a string.')
     
     input1   = Input(shape = (Chans, Samples, 1))
 
-    ##################################################################
-    block1       = Conv2D(F1, (1, kernLength), padding = 'same',
-                                   input_shape = (Chans, Samples, 1),
-                                   use_bias = False)(input1)
+    block1       = Conv2D(F1, (1, kernLength), padding = 'same', kernel_regularizer=l2, kernel_initializer='he_normal', input_shape = (Chans, Samples, 1), use_bias = False)(input1)
     block1       = BatchNormalization()(block1)
-    block1       = DepthwiseConv2D((Chans, 1), use_bias = False, 
-                                   depth_multiplier = D,
-                                   depthwise_constraint = max_norm(1.))(block1)
+    block1       = DepthwiseConv2D((Chans, 1), kernel_regularizer=l2, kernel_initializer='he_normal', use_bias = False, depth_multiplier = D, depthwise_constraint = max_norm(1.))(block1)
     block1       = BatchNormalization()(block1)
     block1       = Activation('elu')(block1)
     block1       = AveragePooling2D((1, 4))(block1)
     block1       = dropoutType(dropoutRate)(block1)
     
-    block2       = SeparableConv2D(F2, (1, 16),
-                                   use_bias = False, padding = 'same')(block1)
+    block2       = SeparableConv2D(F2, (1, 16), kernel_regularizer=l2,kernel_initializer='he_normal', use_bias = False, padding = 'same')(block1)
     block2       = BatchNormalization()(block2)
     block2       = Activation('elu')(block2)
     block2       = AveragePooling2D((1, 8))(block2)
@@ -102,7 +100,7 @@ def EEGNet_Bob(nb_classes, Chans = 64, Samples = 128,
         
     flatten      = Flatten(name = 'flatten')(block2)
     
-    dense        = Dense(nb_classes, name = 'dense', 
+    dense        = Dense(nb_classes,  kernel_initializer='he_normal', name = 'dense', 
                          kernel_constraint = max_norm(norm_rate))(flatten)
     softmax      = Activation('softmax', name = 'softmax')(dense)
     

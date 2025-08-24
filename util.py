@@ -6,8 +6,10 @@ from mne import io
 from mne.datasets import sample
 from models import EEGNet, EEGNet_Bob, ShallowConvNet, DeepConvNet, EEGNet_TF, EEGNet_Wavelet, EEGNet_Wavelet2, EEGNet_Wavelet3
 from tensorflow.keras import utils as np_utils
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras import backend as K
+from sklearn.metrics import confusion_matrix
+from tensorflow.keras.models import load_model
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
@@ -16,10 +18,10 @@ from matplotlib import pyplot as plt
 from collections import Counter
 import seaborn as sns
 from scipy.signal import stft
-from pyriemann.utils.viz import plot_confusion_matrix
 import pandas as pd
 import pywt
 from pyriemann.estimation import Covariances
+from sklearn.utils import class_weight
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
@@ -204,6 +206,8 @@ def plot_predicted_probs(probs, num_samples_to_plot):
     labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
     classes = [f'Class {i}' for i in range(probs.shape[1])]
 
+    colors = ["red", "blue", "green", "yellow"]  # rank-based colors
+
     plt.figure(figsize=(12, 6))
 
     for j in range(num_samples_to_plot):
@@ -213,13 +217,22 @@ def plot_predicted_probs(probs, num_samples_to_plot):
         sorted_classes = [classes[k] for k in sorted_indices]
 
         bottom = 0
-        for prob, cls in zip(sorted_probs, sorted_classes):
-            plt.bar(labels[j], prob, bottom=bottom, label=cls if j == 0 else "")
+        for rank, (prob, cls) in enumerate(zip(sorted_probs, sorted_classes)):
+            plt.bar(labels[j], prob, bottom=bottom,
+                    color=colors[rank], label=cls if j == 0 else "")
             bottom += prob
 
     plt.ylabel('Probability')
     plt.title(f'Class Probabilities (First {num_samples_to_plot} Samples)')
-    plt.legend()
+    # Legend should show "Most likely", "2nd", etc.
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor="red", label="Most likely"),
+        Patch(facecolor="blue", label="2nd most likely"),
+        Patch(facecolor="green", label="3rd most likely"),
+        Patch(facecolor="yellow", label="4th most likely")
+    ]
+    plt.legend(handles=legend_elements)
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
@@ -368,7 +381,9 @@ def exponential_moving_standardize(train_segments, test_segments, decay=0.999, i
 
     return standardized_train, standardized_test
 
-def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline):
+
+
+def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica):
     if file_names:
         all_segments = []
         all_labels = []
@@ -378,10 +393,11 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
-                ica = mne.preprocessing.ICA(n_components=20, random_state=97)
-                ica.fit(raw)
-                ica.exclude = [22,23,24]  # e.g., components matching eye blinks
-                raw = ica.apply(raw.copy()) 
+                if ica:
+                    ica = mne.preprocessing.ICA(n_components=20, random_state=97)
+                    ica.fit(raw)
+                    ica.exclude = [22,23,24]  # e.g., components matching eye blinks
+                    raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
                 
@@ -426,20 +442,20 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
     else:
         return None, None
 
-def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline):
+def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica):
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 22 # There are actually 25 channels, but we only want to retain 22, as 3 are EOG
     names        = ['left', 'right', 'foot', 'tongue']
 
     samples = int((tmax - (tmin)) * sample_rate)
-    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
-    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
+    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
+    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
 
     train_segments, test_segments = exponential_moving_standardize(train_segments, test_segments)
     
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
-def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline):
+def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica):
     if file_names:
         all_segments = []
         all_labels = []
@@ -449,10 +465,11 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
-                ica = mne.preprocessing.ICA(n_components=20, random_state=97)
-                ica.fit(raw)
-                ica.exclude = [0, 1]  # e.g., components matching eye blinks
-                raw = ica.apply(raw.copy()) 
+                if ica:
+                    ica = mne.preprocessing.ICA(n_components=20, random_state=97)
+                    ica.fit(raw)
+                    ica.exclude = [22,23,24]  # e.g., components matching eye blinks
+                    raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
                 
@@ -495,14 +512,14 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
     else:
         return None, None
 
-def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline):
+def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica):
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 3 # There are actually 6 channels, but we only want to retain 3, as 3 are EOG
     names        = ['left', 'right']
 
     samples = int((tmax - (tmin)) * sample_rate)
-    train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
-    test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline)
+    train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
+    test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
 
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
@@ -531,7 +548,7 @@ def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None
     plt.title(title)
     plt.show()
 
-def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs):
+def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs, lr, l2):
     if input_format == "timeseries":
         if model_type == "EEGNet":
             
@@ -546,7 +563,7 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
             model = DeepConvNet(classes, chans, samples, dropoutRate)
         
         elif model_type == "EEGNet_Bob":
-            model = EEGNet_Bob(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType) 
+            model = EEGNet_Bob(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType, l2_penalty=l2) 
 
     elif input_format == "stft": #time frequency
         print(len(time_window_centers))
@@ -565,24 +582,13 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
         model = EEGNet_Wavelet3(classes, chans, n_freqs, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
 
     # compile the model and set the optimizers
-    model.compile(loss='categorical_crossentropy', optimizer='adam', 
-                metrics = ['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics = ['accuracy'])
 
     numParams    = model.count_params()    
 
     # set a valid path for your system to record model checkpoints
-    checkpointer = ModelCheckpoint(filepath='/tmp/checkpoint.h5', verbose=1, save_best_only=True)
+    checkpointer = ModelCheckpoint(filepath='/tmp/checkpoint.h5', verbose=2, save_best_only=True)
 
-    ###############################################################################
-    # if the classification task was imbalanced (significantly more trials in one
-    # class versus the others) you can assign a weight to each class during 
-    # optimization to balance it out. This data is approximately balanced so we 
-    # don't need to do this, but is shown here for illustration/completeness. 
-    ###############################################################################
-
-    class_weights = {0:1, 1:1, 2:1, 3:1}
-
-    #Verbose can change
     print("NumParams: ", {numParams})
 
     if stop_threshold == 0:
@@ -595,7 +601,16 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
         )
         callbacks=[checkpointer, early_stop]
 
-    return X_train, X_validate, X_test, model, numParams, checkpointer, callbacks, class_weights
+    if lr:
+        lr_scheduler = ReduceLROnPlateau(
+            monitor="val_loss",   
+            factor=0.5,           
+            patience=5,          
+            min_lr=1e-6
+        )
+        callbacks.append(lr_scheduler)
+        print(callbacks)
+    return X_train, X_validate, X_test, model, numParams, checkpointer, callbacks
 
 def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, cross_validate, train_index=None, val_index=None, fold_step=None):
     freq_bins_centers, time_window_centers = None, None  
@@ -616,7 +631,7 @@ def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_l
         print(X_validate.shape)
     else:
         # take 50/25/25 percent of the data to train/validate/test
-        X_train, X_validate, Y_train, Y_validate = train_test_split(X_train_raw, Y_train_raw, test_size=0.2, stratify=Y_train)
+        X_train, X_validate, Y_train, Y_validate = train_test_split(X_train_raw, Y_train_raw, test_size=0.2, stratify=Y_train_raw)
 
     if input_format == "timeseries":
         print(X_train.shape)
@@ -652,8 +667,44 @@ def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_l
         # Does not seem to work
     
     return X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers
+def plot_curves(history):
 
-def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, sum_accuracies=0, gui_plots=True, fold_step=None):
+    # Accuracy curve
+    plt.figure()
+    plt.plot(history['accuracy'], label='Train Acc')
+    plt.plot(history['val_accuracy'], label='Val Acc')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Training & Validation Accuracy')
+    plt.legend()
+    plt.grid(True)
+    
+    # Loss curve
+    plt.figure()
+    plt.plot(history['loss'], label='Train Loss')
+    plt.plot(history['val_loss'], label='Val Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training & Validation Loss')
+    plt.legend()
+    plt.grid(True)
+
+    plt.show()
+
+def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix"):
+
+    cm = confusion_matrix(y_true, y_pred)
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
+
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,logfile, sum_accuracies=0, gui_plots=True, fold_step=None):
     # load optimal model weights based on validation accuracy
     model.load_weights('/tmp/checkpoint.h5')
 
@@ -670,7 +721,7 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, s
     print("Average confidence of selected class: ", np.mean(probs.max(axis=1)))
 
     # Log accuracy to file
-    with open("accuracy_log.txt", "a") as f:
+    with open(logfile, "a") as f:
         if not fold_step ==None:
             f.write(f"Subject {i+1} Fold {fold_step} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
         else:
@@ -686,6 +737,8 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, s
         # Show only the first 10 samples for clarity
         samples_to_plot = 10
         plot_predicted_probs(probs, samples_to_plot)
+
+        plot_curves(fittedModelHistory.history)
 
         # Plot all confidences
         plot_prediction_confidence(probs)
