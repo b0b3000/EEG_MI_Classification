@@ -22,6 +22,7 @@ import pandas as pd
 import pywt
 from pyriemann.estimation import Covariances
 from sklearn.utils import class_weight
+import math
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
@@ -691,15 +692,16 @@ def plot_curves(history):
 
     plt.show()
 
-def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix"):
-
-    cm = confusion_matrix(y_true, y_pred)
+def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix", cm=None):
+    
+    if cm is None: # cm param allows bypassing of this
+        cm = confusion_matrix(y_true, y_pred)
 
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
 
-    plt.ylabel("True label")
-    plt.xlabel("Predicted label")
+    plt.ylabel("Predicted label")
+    plt.xlabel("True label")
     plt.title(title)
     plt.tight_layout()
     plt.show()
@@ -720,16 +722,26 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
     print("Best epoch: ", best_epoch)
     print("Average confidence of selected class: ", np.mean(probs.max(axis=1)))
 
+    print("ABD")
+    cm = confusion_matrix(preds, Y_test.argmax(axis = -1))
+    class_acc = cm.diagonal() / cm.sum(axis=1)   # per-class accuracy
+    print(class_acc)
+    for i in range(len(class_acc)):
+        if math.isnan(class_acc[i]):
+            class_acc[i] = 0
+    print(class_acc)
+
+    
     # Log accuracy to file
     with open(logfile, "a") as f:
         if not fold_step ==None:
             f.write(f"Subject {i+1} Fold {fold_step} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
+            # in CV mode, the subject class acc gets logged later
         else:
             f.write(f"Subject {i+1} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
 
     if gui_plots:
-        plt.figure(0)
-        plot_confusion_matrix(preds, Y_test.argmax(axis = -1), names, title = 'EEGNet-8,2')
+        plot_confusion_matrix(Y_test.argmax(axis = -1), preds, names, title = 'EEGNet-8,2')
 
         # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
         #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
@@ -746,4 +758,4 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
         # plot all selected probs
         plot_all_predicted_probabilities(probs)
 
-    return sum_accuracies, acc
+    return sum_accuracies, acc, class_acc, cm

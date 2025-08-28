@@ -45,19 +45,6 @@ Subject 7 - Accuracy: 0.3438. Best epoch: 66
 Subject 8 - Accuracy: 0.5938. Best epoch: 123
 Subject 9 - Accuracy: 0.5312. Best epoch: 185
 Total Average Accuracy: 0.4479
-
-------------------------------------------------
-CROSS SUBJECT BCI 2a
-Input: timeseries, Model: EEGNet
-Time Window: 0.5-2.5
-Bandpass: [4, 40], ICA: False
-Baseline: None, Amplitude Magnification: 1000
-STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
-Wavelet -> n_freqs: 30
-Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
-Training -> Stop threshold: 100, Epochs: 500, Batch size: 32
-------------------------------------------------
-
 ------------------------------------------------
 CROSS SUBJECT BCI 2a
 Input: timeseries, Model: EEGNet
@@ -80,38 +67,3 @@ Subject 8 - Accuracy: 0.5903. Best epoch: 52
 Subject 9 - Accuracy: 0.4653. Best epoch: 27
 Total Average Accuracy: 0.3650
 
-------------------------------------------------
-CROSS SUBJECT BCI 2a
-Input: timeseries, Model: EEGNet
-Time Window: 0.5-2.5
-Bandpass: [4, 40], ICA: False
-Baseline: None, Amplitude Magnification: 1000
-STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
-Wavelet -> n_freqs: 30
-Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
-Training -> Stop threshold: 100, Epochs: 500, Batch size: 32
-------------------------------------------------
-
-------------------------------------------------
-CROSS SUBJECT BCI 2a
-Input: timeseries, Model: EEGNet
-Time Window: 0.5-2.5
-Bandpass: [4, 40], ICA: False
-Baseline: None, Amplitude Magnification: 1000
-STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
-Wavelet -> n_freqs: 30
-Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
-Training -> Stop threshold: 100, Epochs: 500, Batch size: 32
-------------------------------------------------
-
-------------------------------------------------
-CROSS SUBJECT BCI 2a
-Input: timeseries, Model: EEGNet
-Time Window: 0.5-2.5
-Bandpass: [4, 40], ICA: False
-Baseline: None, Amplitude Magnification: 1000
-STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
-Wavelet -> n_freqs: 30
-Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
-Training -> Stop threshold: 100, Epochs: 500, Batch size: 32
-------------------------------------------------
