@@ -27,6 +27,60 @@ import math
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
 
+def time_shift(x, max_shift=20):
+    shift = np.random.randint(-max_shift, max_shift+1)
+    return np.roll(x, shift, axis=1)  # shift along samples axis
+
+def add_gaussian_noise(x, sigma=1e-6):
+    noise = np.random.normal(0, sigma, size=x.shape).astype(x.dtype)
+    return x + noise
+
+def channel_dropout(x, k=1):
+    x = x.copy()
+    chans = x.shape[0]
+    drop = np.random.choice(chans, size=k, replace=False)
+    x[drop, :, 0] = 0.0  # zero out selected channels
+    return x
+
+def augment_trial(x, timeshift_prob, noise_prob, chan_dropout_prob):
+    if np.random.rand() < timeshift_prob:
+        x = time_shift(x, 20) # max shift = 20
+    if np.random.rand() < noise_prob:
+        x = add_gaussian_noise(x, 1e-6) #gaussian param
+    if np.random.rand() < chan_dropout_prob:
+        x = channel_dropout(x, 2) # dropout 2 channels randomly
+    return x
+
+def augment(X_train, Y_train, n_segments, timeshift_prob=0.5, noise_prob=0.5, chan_dropout_prob=0.3):
+    n_samples = X_train.shape[2]
+    
+    segment_length = n_samples // n_segments
+
+    augmented_X = []
+    augmented_Y = []
+
+    # keep original trials
+    augmented_X.extend(X_train)
+    augmented_Y.extend(Y_train)
+
+    for i in range(len(X_train)):
+        same_class_trials = np.where(np.argmax(Y_train, axis=1) == np.argmax(Y_train[i]))[0]
+
+        new_trial = np.zeros_like(X_train[i])
+        for seg_idx in range(n_segments):
+            # choose a random trial from same class
+            chosen_trial_idx = np.random.choice(same_class_trials)
+            start = seg_idx * segment_length
+            end = (seg_idx + 1) * segment_length
+            new_trial[:, start:end, :] = augment_trial(X_train[chosen_trial_idx, :, start:end, :], timeshift_prob, noise_prob, chan_dropout_prob)
+        augmented_X.append(new_trial)
+        augmented_Y.append(Y_train[i])  # label stays the same
+
+    augmented_X = np.array(augmented_X, dtype=np.float32)
+    augmented_Y = np.array(augmented_Y, dtype=np.float32)
+
+    return augmented_X, augmented_Y
+
 def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
     samples_per_trial = X_train.shape[2]
     fmin = 2
@@ -382,7 +436,21 @@ def exponential_moving_standardize(train_segments, test_segments, decay=0.999, i
 
     return standardized_train, standardized_test
 
+def apply_ica(raw):
+    ica = mne.preprocessing.ICA(n_components=20)
+    ica.fit(raw)
+    raw.set_channel_types({ch: 'eog' for ch in raw.ch_names[-3:]})
 
+    # Detect components correlated with EOG
+    ica.exclude = ica.find_bads_eog(raw)[0]
+
+    # Apply ICA
+    raw = ica.apply(raw)
+
+    # Now drop EOG before epochs
+    raw.pick_types(eeg=True)
+
+    return raw
 
 def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica):
     if file_names:
@@ -394,19 +462,19 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
-                if ica:
-                    ica = mne.preprocessing.ICA(n_components=20, random_state=97)
-                    ica.fit(raw)
-                    ica.exclude = [22,23,24]  # e.g., components matching eye blinks
-                    raw = ica.apply(raw.copy()) 
 
                 ################################################ BANDPASS ####################################
                 
                 raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
                 #raw.filter(2, None, method='iir') 
 
-                ###############################################################################################
+                ################################################## ICA ###################################
 
+                if ica:
+                    raw = apply_ica(raw)
+                    
+                ####################################################################################
+                    
                 events, _ = mne.events_from_annotations(raw, event_id = {
                     '769': 1,   # left hand
                     '770': 2,   # right hand
@@ -466,18 +534,17 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 data_path = directory + file_name + ".gdf"
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
-                if ica:
-                    ica = mne.preprocessing.ICA(n_components=20, random_state=97)
-                    ica.fit(raw)
-                    ica.exclude = [22,23,24]  # e.g., components matching eye blinks
-                    raw = ica.apply(raw.copy()) 
-
+                
                 ################################################ BANDPASS ####################################
                 
                 raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
                 #raw.filter(2, None, method='iir') 
 
-                ###############################################################################################
+                ################################################ ICA #######################################
+                if ica:
+                    raw = apply_ica(raw)
+                    
+                ############################################################################################
 
                 events, _ = mne.events_from_annotations(raw, event_id = {
                     '769': 1,   # left hand
@@ -724,14 +791,13 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
 
     print("ABD")
     cm = confusion_matrix(preds, Y_test.argmax(axis = -1))
-    class_acc = cm.diagonal() / cm.sum(axis=1)   # per-class accuracy
+    class_acc = cm.diagonal() / cm.sum(axis=0)   # per-class accuracy #used to be axis=1 for recall
     print(class_acc)
-    for i in range(len(class_acc)):
-        if math.isnan(class_acc[i]):
-            class_acc[i] = 0
-    print(class_acc)
+    #for j in range(len(class_acc)):
+     #   if math.isnan(class_acc[j]):
+      #      class_acc[j] = 0
+    #print(class_acc)
 
-    
     # Log accuracy to file
     with open(logfile, "a") as f:
         if not fold_step ==None:

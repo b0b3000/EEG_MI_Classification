@@ -7,7 +7,7 @@ import tensorflow
 print(tensorflow.__version__)
 # BIG 3
 input_format = "timeseries"
-model_type = "EEGNet"
+model_type = "EEGNet_Bob"
 dataset = "BCI 2a"
 
 if dataset == "BCI 2a":
@@ -29,7 +29,7 @@ else:
 bandpass = [4,40]
 baseline = None
 amplitude_magnification = 1000 #current best = 1000
-ica = False
+ica = True
 
 #Only relevant to STFT 
 segment_len=128
@@ -41,18 +41,18 @@ padding=True
 n_freqs = 30
 
 #MODEL HYPERPARAMS
-dropoutRate = 0.5 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject
+dropoutRate = 0.4 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject
 kernLength = 32 #32 sugggested by paper
 F1 = 4 # 4, 8
-D = 2 # 2
-F2 = 8 # F1 * D suggested by paper
+D = 4 # 2
+F2 = 16 # F1 * D suggested by paper
 dropoutType = 'Dropout' # Paper suggested Dropout
 stop_threshold = 150
-batch_size = 32
+batch_size = 64
 epochs = 1000
 lr = False #Learning rate scheduler yes or no
-l2 = None # none if off
-gui=True
+l2 = 0.1 # none if off
+gui=False
 
 #Same or cross subject
 same_subject = True
@@ -66,6 +66,9 @@ sum_accuracies = 0
 sum_class_acc = np.zeros(4)
 all_subjects_cm = []
 subjects = len(training_files_list)
+augment = True
+augment_chops = 5
+augment_probs= [0.5,0.5,0.3] 
 
 with open(logfile, "a") as f:
     f.write("\n------------------------------------------------\n")
@@ -85,12 +88,16 @@ with open(logfile, "a") as f:
             f"Kernel Length: {kernLength}, F1: {F1}, D: {D}, F2: {F2}, "
             f"Dropout Type: {dropoutType}\n")
     f.write(f"Training -> Stop threshold: {stop_threshold}, Epochs: {epochs}, Batch size: {batch_size}, Learning Rate Schedule: {lr}, L2 regulariser: {l2}\n")
+    if augment:
+        f.write(f"Augmentation -> {augment_chops} chops. Timeshift probs: {augment_probs[0]}, Noise addition prob: {augment_probs[1]}, Channel Dropout prob: {augment_probs[2]}\n")
+    else:
+        f.write("Augmentation: None\n")
     f.write("------------------------------------------------\n")
 
 
 if same_subject:
 
-    for i in range(len(training_files_list)):
+    for i in (range(subjects)):
 
         training_files = [training_files_list[i]]
         test_files = [testing_files_list[i]]
@@ -111,12 +118,15 @@ if same_subject:
         ]
 
         subject_acc_list = []
-        subject_class_acc_sum = np.zeros(4)
+        subject_class_acc_sum = np.zeros(classes)
         cm = [] # list of all CMs to make a conglomerate CM at the end of each subject
 
         for fold_step, (train_index, val_index) in enumerate(train_val_split):
 
             X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers = util.prepare_data(X_train_raw,  X_test_raw, Y_train_raw, Y_test_raw, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, True, train_index,val_index, fold_step)
+            
+            if augment:
+                X_train, Y_train= util.augment(X_train, Y_train, augment_chops, timeshift_prob=augment_probs[0], noise_prob=augment_probs[1], chan_dropout_prob=augment_probs[2])
 
             X_train, X_validate, X_test, model, numParams, checkpointer, callbacks= util.prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs, lr, l2)
             
@@ -144,7 +154,7 @@ if same_subject:
 
             # Log per-class accuracy
             for cls_idx, cls_name in enumerate(names):
-                f.write(f"    Class {cls_name}: {subject_class_acc[cls_idx]:.4f}\n")
+                f.write(f"    Class Accuracy {cls_name}: {subject_class_acc[cls_idx]:.4f}\n")
 
 else:
     X_train_subject = [None] * subjects
@@ -160,7 +170,10 @@ else:
         X_train_raw, Y_train_raw, X_test_raw, Y_test_raw, chans, kernels, samples, names, sample_rate = util.get_bci_2a(training_file, test_file, bandpass = bandpass,tmin = tmin, tmax = tmax,mode = "gdf",amp_mag= amplitude_magnification, baseline=baseline, ica=ica)
 
         X_train, X_test_subject[i], X_validate, Y_train, Y_validate, y_test_subject[i], freq_bins_centers, time_window_centers = util.prepare_data(X_train_raw,  X_test_raw, Y_train_raw, Y_test_raw, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, False, None,None, None)
-
+        
+        if augment:
+            X_train, Y_train= util.augment(X_train, Y_train, augment_chops, timeshift_prob=augment_probs[0], noise_prob=augment_probs[1], chan_dropout_prob=augment_probs[2])
+        
         X_train_subject[i] = np.concatenate((X_train, X_validate), axis=0)
         y_train_subject[i] = np.concatenate((Y_train, Y_validate), axis=0)
 
@@ -203,11 +216,10 @@ avg_cm = np.sum(all_subjects_cm, axis=0)
 print("AVERAGE ACCURACY OF ALL SUBJECTS: ", avg_acc)
 print("OVERALL CLASSWISE ACCURACY: ", avg_class_acc)
 
-
 with open(logfile, "a") as f:
     f.write(f"Total Average Accuracy: {avg_acc:.4f}\n")
     for cls_idx, cls_name in enumerate(names):
-            f.write(f"    Class {cls_name}: {avg_class_acc[cls_idx]:.4f}\n")
+            f.write(f"    Average Class Accuracy {cls_name}: {avg_class_acc[cls_idx]:.4f}\n")
 
 util.plot_confusion_matrix(None, None, names, title=f"Aggregate Confusion Matrix of ALL subjects {i+1}", cm=avg_cm)
     
