@@ -540,11 +540,15 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
                 #raw.filter(2, None, method='iir') 
 
+                # 2. Plot some raw channels before ICA
+                raw.plot(n_channels=10, title='Raw EEG Before ICA', show=True)
+
                 ################################################ ICA #######################################
                 if ica:
                     raw = apply_ica(raw)
-                    
+
                 ############################################################################################
+                raw.plot(n_channels=10, title='Raw EEG After ICA', show=True)
 
                 events, _ = mne.events_from_annotations(raw, event_id = {
                     '769': 1,   # left hand

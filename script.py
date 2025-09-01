@@ -97,7 +97,8 @@ with open(logfile, "a") as f:
 
 if same_subject:
 
-    for i in (range(subjects)):
+    #for i in (range(subjects)):
+    for i in [3]:
 
         training_files = [training_files_list[i]]
         test_files = [testing_files_list[i]]
