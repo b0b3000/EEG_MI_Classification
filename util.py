@@ -14,7 +14,9 @@ from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use("Agg") 
+import matplotlib.pyplot as plt
 from collections import Counter
 import seaborn as sns
 from scipy.signal import stft
@@ -23,9 +25,33 @@ import pywt
 from pyriemann.estimation import Covariances
 from sklearn.utils import class_weight
 import math
+import os
+
+figure_dir = "/Users/bobbeashel/Desktop/CITS4010/Project/figures/"
 
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
 #DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
+
+def savefig_unique(fig, filepath, fig_obj=True):
+
+    counter = 0
+    name, ext = filepath.rsplit(".", 1)
+    name = figure_dir + name
+    
+    #first attempt
+    unique_path = figure_dir + filepath
+
+    #keep adding a number until free -> so no overwrite
+    while os.path.exists(unique_path):
+        counter += 1
+        unique_path = f"{name}{counter}.{ext}"
+
+    if fig_obj:
+        fig.savefig(unique_path)
+    else:
+        fig.figure.savefig(unique_path)
+
+    print(f"[INFO] Saved: {unique_path}")
 
 def time_shift(x, max_shift=20):
     shift = np.random.randint(-max_shift, max_shift+1)
@@ -112,12 +138,12 @@ def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
     plt.title('Time-Frequency Representation (Wavelet Transform)')
     plt.colorbar(label='Power')
     plt.tight_layout()
-    plt.show()
+    savefig_unique(plt, "wavelet_transform.png")
 
     return X_train_converted, X_test_converted
 
 
-def plot_all_predicted_probabilities(probs, class_names=None):
+def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     """
     Plot the distribution of maximum predicted probabilities for each instance,
     including both individual dots (stripplot) and summary (boxplot).
@@ -134,12 +160,12 @@ def plot_all_predicted_probabilities(probs, class_names=None):
     sns.boxplot(x=max_probs, orient='h', color='lightgray', width=0.3, fliersize=0, linewidth=1)
 
     plt.xlabel('Top-1 Predicted Probability')
-    plt.title('Top-1 Confidence Distribution (with Boxplot)')
+    plt.title(f'{title} Predicted Probability Distribution')
     plt.grid(True, linestyle='--', alpha=0.3)
     plt.xlim(0, 1)
     plt.tight_layout()
     plt.legend()
-    plt.show()
+    savefig_unique(plt, "all_prob_distributions.png")
 
 def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
     ############################# xDAWN + RG Portion ##############################
@@ -172,7 +198,7 @@ def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
     plt.figure(1)
     plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
 
-    plt.show()
+    savefig_unique(plt, "confusion_xdawnrg.png")
 
 def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
     def compute_stft(X,dataset):
@@ -233,7 +259,7 @@ def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
     axs[1].set_title(f'STFT at {times[1]:.2f}s (Trial 0 Channel 0) '+ dataset)
 
     plt.tight_layout()
-    plt.show()
+    savefig_unique(plt, "stft.png")
 '''
 def plot_predicted_probs(probs, num_samples_to_plot):
     subset = probs[:num_samples_to_plot]
@@ -255,7 +281,7 @@ def plot_predicted_probs(probs, num_samples_to_plot):
     plt.tight_layout()
     plt.show()'''
 
-def plot_predicted_probs(probs, num_samples_to_plot):
+def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilities"):
     subset = probs[:num_samples_to_plot]
 
     labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
@@ -278,7 +304,7 @@ def plot_predicted_probs(probs, num_samples_to_plot):
             bottom += prob
 
     plt.ylabel('Probability')
-    plt.title(f'Class Probabilities (First {num_samples_to_plot} Samples)')
+    plt.title(f'{title} (First {num_samples_to_plot} Samples)')
     # Legend should show "Most likely", "2nd", etc.
     from matplotlib.patches import Patch
     legend_elements = [
@@ -290,10 +316,9 @@ def plot_predicted_probs(probs, num_samples_to_plot):
     plt.legend(handles=legend_elements)
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()
+    savefig_unique(plt, "predicted_probs.png")
 
-
-def plot_prediction_confidence(probs, k=1.2):
+def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
 
     """
     Plots a strip plot (dot plot) of Top1/Top2 confidence ratios for all samples, capped at 3.
@@ -309,8 +334,8 @@ def plot_prediction_confidence(probs, k=1.2):
     with np.errstate(divide='ignore', invalid='ignore'):
         confidence_ratio = np.where(top2 != 0, top1 / top2, np.inf)
 
-    # Cap extreme values at 3 for visualization clarity
-    confidence_ratio = np.clip(confidence_ratio, a_min=None, a_max=5)
+    # Cap extreme values at 5 for visualization clarity
+    confidence_ratio = np.clip(confidence_ratio, a_min=1, a_max=5)
 
     # Seaborn style
     sns.set(style="whitegrid")
@@ -318,11 +343,16 @@ def plot_prediction_confidence(probs, k=1.2):
     # Plot
     plt.figure(figsize=(10, 5))
     # Highlight region from 1 to k
-    #plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Region (1–{k})')
+    plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Predictions Region (Confidence < {k})')
     sns.histplot(confidence_ratio, kde=True, bins=30, color='skyblue')
-    plt.title("Histogram + KDE of Confidence Ratios (Top1 / Top2)")
+    plt.legend()
+    plt.title(f"{title} Confidence Ratios")
+    plt.xlim(1, 5)
+    plt.xticks([1, 2, 3, 4, 5], ["1", "2", "3", "4", "5+"])
     plt.xlabel("Confidence Ratio")
     plt.ylabel("Frequency")
+
+    savefig_unique(plt, "top_confidence_distribution.png")
 
 def get_mne_dataset():
     kernels, chans, samples = 1, 60, 151
@@ -436,23 +466,40 @@ def exponential_moving_standardize(train_segments, test_segments, decay=0.999, i
 
     return standardized_train, standardized_test
 
-def apply_ica(raw):
+def apply_ica(raw, gui):
+    raw.set_channel_types({ch: 'eog' for ch in raw.ch_names[-3:]})
+
     ica = mne.preprocessing.ICA(n_components=20)
     ica.fit(raw)
-    raw.set_channel_types({ch: 'eog' for ch in raw.ch_names[-3:]})
+    
+    if gui:
+        ica.plot_sources(raw, show=False)  
+        savefig_unique(plt, "ica_sources_before.png")
+        #plt.show()  
 
     # Detect components correlated with EOG
     ica.exclude = ica.find_bads_eog(raw)[0]
+    #ica.exclude = [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] #Manual visual inspection 
 
     # Apply ICA
     raw = ica.apply(raw)
 
+    if gui:
+        ica.plot_sources(raw, show=False)  
+        savefig_unique(plt, "ica_sources_after.png") 
+
     # Now drop EOG before epochs
     raw.pick_types(eeg=True)
 
+    if gui:
+        ica.plot_overlay(raw, exclude=ica.exclude, picks='eeg', show=False)
+        savefig_unique(plt, "ica_overlay.png")
+
+    print(f"Components to remove: {ica.exclude}")
+
     return raw
 
-def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica):
+def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica, gui):
     if file_names:
         all_segments = []
         all_labels = []
@@ -469,12 +516,29 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 #raw.filter(2, None, method='iir') 
 
                 ################################################## ICA ###################################
-
+                raw_before_ica = raw.copy()
                 if ica:
-                    raw = apply_ica(raw)
+                    raw = apply_ica(raw,gui)
+
+                # visual only
+                if gui:
+                    raw_before_ica.plot(n_channels=5, duration=5, title="Before ICA")
+                    raw.plot(n_channels=5, duration=5, title="After ICA")
+
+                    fig1 = raw_before_ica.plot_psd(fmax=50, show=False)
+                    fig1.suptitle("PSD Before ICA")
+
+                    fig2 = raw.plot_psd(fmax=50, show=False)
+                    fig2.suptitle("PSD After ICA")
+
+                    savefig_unique( fig1, "before_ica.png",  False)
+                    savefig_unique(  fig2, "after_ica.png",False)
+
+                    #fig1.show()
+                    #fig2.show()
                     
                 ####################################################################################
-                    
+
                 events, _ = mne.events_from_annotations(raw, event_id = {
                     '769': 1,   # left hand
                     '770': 2,   # right hand
@@ -492,7 +556,7 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 labels_raw = loadmat(labels_path)
                 labels_raw = labels_raw["classlabel"].reshape(-1) - 1 #Change from 1,2,3,4 to 0,1,2,3 because the EEGNet model likes it
                 all_labels.append(labels_raw)
-    
+
         #combining all elements of tracked list
         labels = np.concatenate(all_labels, axis=0)
         segments= np.concatenate(all_segments, axis=0)
@@ -511,20 +575,20 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
     else:
         return None, None
 
-def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica):
+def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica, gui):
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 22 # There are actually 25 channels, but we only want to retain 22, as 3 are EOG
     names        = ['left', 'right', 'foot', 'tongue']
 
     samples = int((tmax - (tmin)) * sample_rate)
-    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
-    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
+    train_segments, train_labels = bci_2a_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
+    test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
 
     train_segments, test_segments = exponential_moving_standardize(train_segments, test_segments)
     
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
-def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica):
+def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica, gui):
     if file_names:
         all_segments = []
         all_labels = []
@@ -543,12 +607,33 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 # 2. Plot some raw channels before ICA
                 raw.plot(n_channels=10, title='Raw EEG Before ICA', show=True)
 
-                ################################################ ICA #######################################
-                if ica:
-                    raw = apply_ica(raw)
+                ################################################ BANDPASS ####################################
+                
+                raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
+                #raw.filter(2, None, method='iir') 
 
-                ############################################################################################
-                raw.plot(n_channels=10, title='Raw EEG After ICA', show=True)
+                ################################################## ICA ###################################
+                raw_before_ica = raw.copy()
+                if ica:
+                    raw = apply_ica(raw, gui)
+                    
+                    # visual only
+                    if gui:
+                        raw_before_ica.plot(n_channels=5, duration=5, title="Before ICA")
+                        raw.plot(n_channels=5, duration=5, title="After ICA")
+
+                        fig1 = raw_before_ica.plot_psd(fmax=50, show=False)
+                        fig1.suptitle("PSD Before ICA")
+
+                        fig2 = raw.plot_psd(fmax=50, show=False)
+                        fig2.suptitle("PSD After ICA")
+
+                        #fig1.show()
+                        #fig2.show()
+                        savefig_unique(fig1, "PSD_before_ica.png",  False)
+                        savefig_unique(fig2,"PSD_after_ica.png",  False)
+                ####################################################################################
+                
 
                 events, _ = mne.events_from_annotations(raw, event_id = {
                     '769': 1,   # left hand
@@ -584,14 +669,14 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
     else:
         return None, None
 
-def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica):
+def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica, gui):
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 3 # There are actually 6 channels, but we only want to retain 3, as 3 are EOG
     names        = ['left', 'right']
 
     samples = int((tmax - (tmin)) * sample_rate)
-    train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
-    test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica)
+    train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
+    test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
 
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
@@ -618,7 +703,7 @@ def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None
     ax.grid(True, axis='x', linestyle=':', linewidth=0.5)
     plt.tight_layout()
     plt.title(title)
-    plt.show()
+    savefig_unique(plt,"epoch_with_event.png")
 
 def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs, lr, l2):
     if input_format == "timeseries":
@@ -687,9 +772,9 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
 def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, cross_validate, train_index=None, val_index=None, fold_step=None):
     freq_bins_centers, time_window_centers = None, None  
     if input_format == "stft":
-        X_train, X_test, freq_bins_centers, time_window_centers = convert_stft(X_train, X_test, sample_rate, segment_len, sample_overlap, boundary, padding)
+        X_train_raw, X_test, freq_bins_centers, time_window_centers = convert_stft(X_train_raw, X_test, sample_rate, segment_len, sample_overlap, boundary, padding)
     if input_format=="wavelet":
-        X_train, X_test = convert_wavelet(X_train, X_test,sample_rate, n_freqs)
+        X_train_raw, X_test = convert_wavelet(X_train_raw, X_test,sample_rate, n_freqs)
 
     if cross_validate:
         print(f"Start fold {fold_step}")
@@ -739,29 +824,31 @@ def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_l
         # Does not seem to work
     
     return X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers
-def plot_curves(history):
+def plot_curves(history, title="Validation and Loss Curves"):
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10), sharex=True)
 
     # Accuracy curve
-    plt.figure()
-    plt.plot(history['accuracy'], label='Train Acc')
-    plt.plot(history['val_accuracy'], label='Val Acc')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.title('Training & Validation Accuracy')
-    plt.legend()
-    plt.grid(True)
-    
-    # Loss curve
-    plt.figure()
-    plt.plot(history['loss'], label='Train Loss')
-    plt.plot(history['val_loss'], label='Val Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Training & Validation Loss')
-    plt.legend()
-    plt.grid(True)
+    ax1.plot(history['accuracy'], label='Train Acc')
+    ax1.plot(history['val_accuracy'], label='Val Acc')
+    ax1.set_ylabel('Accuracy')
+    ax1.set_title('Training & Validation Accuracy')
+    ax1.legend()
+    ax1.grid(True)
 
-    plt.show()
+    # Loss curve
+    ax2.plot(history['loss'], label='Train Loss')
+    ax2.plot(history['val_loss'], label='Val Loss')
+    ax2.set_xlabel('Epoch')
+    ax2.set_ylabel('Loss')
+    ax2.set_title('Training & Validation Loss')
+    ax2.legend()
+    ax2.grid(True)
+
+    plt.tight_layout()
+    plt.title(title)
+    
+    savefig_unique(plt, "accuracy_loss_curves.png")
 
 def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix", cm=None):
     
@@ -775,7 +862,8 @@ def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix",
     plt.xlabel("True label")
     plt.title(title)
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+    savefig_unique(plt, "confusion_matrix.png")
 
 def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,logfile, sum_accuracies=0, gui_plots=True, fold_step=None):
     # load optimal model weights based on validation accuracy
@@ -811,21 +899,21 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
             f.write(f"Subject {i+1} - Accuracy: {acc:.4f}. Best epoch: {best_epoch}\n")
 
     if gui_plots:
-        plot_confusion_matrix(Y_test.argmax(axis = -1), preds, names, title = 'EEGNet-8,2')
+        plot_confusion_matrix(Y_test.argmax(axis = -1), preds, names, title = f"Subject {i+1} Fold {fold_step}")
 
         # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
         #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
 
         # Show only the first 10 samples for clarity
         samples_to_plot = 10
-        plot_predicted_probs(probs, samples_to_plot)
+        plot_predicted_probs(probs, samples_to_plot, title = f"Subject {i+1} Fold {fold_step}")
 
-        plot_curves(fittedModelHistory.history)
+        plot_curves(fittedModelHistory.history, title = f"Subject {i+1} Fold {fold_step}")
 
         # Plot all confidences
-        plot_prediction_confidence(probs)
+        plot_prediction_confidence(probs, title = f"Subject {i+1} Fold {fold_step}")
 
         # plot all selected probs
-        plot_all_predicted_probabilities(probs)
+        plot_all_predicted_probabilities(probs, title = f"Subject {i+1} Fold {fold_step}")
 
     return sum_accuracies, acc, class_acc, cm
