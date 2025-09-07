@@ -6,9 +6,12 @@ import datetime
 
 import tensorflow
 print(tensorflow.__version__)
+
+title = "EEGNet 4,2 with Paper Config"
+
 # BIG 3
 input_format = "timeseries"
-model_type = "EEGNet_Bob"
+model_type = "EEGNet"
 dataset = "BCI 2a"
 
 if dataset == "BCI 2a":
@@ -27,10 +30,10 @@ else:
     print("INVALID DATASET")
     
 #PREPROCESSING
-bandpass = [4,40]
-baseline = None
-amplitude_magnification = 1000 #current best = 1000
-ica = True
+bandpass = [4,40] # paper & best [4,40]
+baseline = None #paper and best None
+amplitude_magnification = 1000 #best = 1000
+ica = False # Paper = off
 
 #Only relevant to STFT 
 segment_len=128
@@ -42,21 +45,21 @@ padding=True
 n_freqs = 30
 
 #MODEL HYPERPARAMS
-dropoutRate = 0.4 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject
-kernLength = 32 #32 sugggested by paper
-F1 = 4 # 4, 8
-D = 4 # 2
-F2 = 16 # F1 * D suggested by paper
-dropoutType = 'Dropout' # Paper suggested Dropout
-stop_threshold = 150
-batch_size = 64
-epochs = 150
-lr = False #Learning rate scheduler yes or no
-l2 = 0.1 # none if off
+dropoutRate = 0.5 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject. Best 0.4
+kernLength = 32 #32 sugggested by paper. Best 32
+F1 = 4 # 4, 8. Best 4
+D = 2 # 2. Best 4
+F2 = 8 # F1 * D suggested by paper. Best 16
+dropoutType = 'Dropout' # Paper suggested Dropout. Best dropout
+stop_threshold = 150 # 150 best
+batch_size = 64 #64 best
+epochs = 1000 # 1000 best
+lr = False #Learning rate scheduler yes or no. Paper = no, best = no
+l2 = None # none if off. Paper = None, best = 0.1
 
-augment = True
-augment_chops = 5
-augment_probs= [0.5,0.5,0.3] 
+augment = False #Best = true
+augment_chops = 5 # best = 5
+augment_probs= [0.5,0.5,0.3] #best = 0.5,0.5,0.3
 
 gui=True
 
@@ -79,9 +82,9 @@ for i in range(loops):
     with open(logfile, "a") as f:
         f.write("\n------------------------------------------------\n")
         if same_subject:
-            f.write(f"SAME SUBJECT ")
+            f.write(f"SAME SUBJECT {title}")
         else:
-            f.write("CROSS SUBJECT ")
+            f.write(f"CROSS SUBJECT {title}")
         f.write(f"{datetime.datetime.now()}\n")
         f.write(f"{dataset}\n")
         f.write(f"Input: {input_format}, Model: {model_type}\n")
