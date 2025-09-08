@@ -61,7 +61,7 @@ augment = False #Best = true
 augment_chops = 5 # best = 5
 augment_probs= [0.5,0.5,0.3] #best = 0.5,0.5,0.3
 
-gui=True
+gui=True #
 
 #Same or cross subject
 same_subject = True
