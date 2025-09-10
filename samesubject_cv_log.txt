@@ -5703,3 +5703,1125 @@ Total Average Accuracy: 0.5745
     Average Class Accuracy right: 0.6107
     Average Class Accuracy foot: 0.5177
     Average Class Accuracy tongue: 0.5679
+
+------------------------------------------------
+SAME SUBJECT EEGNet_Bob no ICA and with augment
+2025-09-09 19:56:53.724463
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.7708. Best epoch: 324
+Subject 1 Fold 1 - Accuracy: 0.7361. Best epoch: 204
+Subject 1 Fold 2 - Accuracy: 0.7500. Best epoch: 364
+Subject 1 Fold 3 - Accuracy: 0.6944. Best epoch: 239
+Subject 1 - Overall Accuracy: 0.7378.
+    Class Accuracy left: 0.8090
+    Class Accuracy right: 0.8993
+    Class Accuracy foot: 0.7778
+    Class Accuracy tongue: 0.4653
+Subject 2 Fold 0 - Accuracy: 0.3854. Best epoch: 154
+Subject 2 Fold 1 - Accuracy: 0.3368. Best epoch: 163
+Subject 2 Fold 2 - Accuracy: 0.3333. Best epoch: 132
+Subject 2 Fold 3 - Accuracy: 0.3542. Best epoch: 183
+Subject 2 - Overall Accuracy: 0.3524.
+    Class Accuracy left: 0.3542
+    Class Accuracy right: 0.4861
+    Class Accuracy foot: 0.3576
+    Class Accuracy tongue: 0.2118
+Subject 3 Fold 0 - Accuracy: 0.8507. Best epoch: 488
+Subject 3 Fold 1 - Accuracy: 0.8333. Best epoch: 202
+Subject 3 Fold 2 - Accuracy: 0.8333. Best epoch: 355
+Subject 3 Fold 3 - Accuracy: 0.8507. Best epoch: 406
+Subject 3 - Overall Accuracy: 0.8420.
+    Class Accuracy left: 0.8438
+    Class Accuracy right: 0.9931
+    Class Accuracy foot: 0.6910
+    Class Accuracy tongue: 0.8403
+Subject 4 Fold 0 - Accuracy: 0.6250. Best epoch: 564
+Subject 4 Fold 1 - Accuracy: 0.5208. Best epoch: 182
+Subject 4 Fold 2 - Accuracy: 0.5312. Best epoch: 313
+Subject 4 Fold 3 - Accuracy: 0.5278. Best epoch: 297
+Subject 4 - Overall Accuracy: 0.5512.
+    Class Accuracy left: 0.6076
+    Class Accuracy right: 0.5521
+    Class Accuracy foot: 0.5625
+    Class Accuracy tongue: 0.4826
+Subject 5 Fold 0 - Accuracy: 0.5069. Best epoch: 348
+Subject 5 Fold 1 - Accuracy: 0.5625. Best epoch: 776
+Subject 5 Fold 2 - Accuracy: 0.5000. Best epoch: 445
+Subject 5 Fold 3 - Accuracy: 0.4722. Best epoch: 267
+Subject 5 - Overall Accuracy: 0.5104.
+    Class Accuracy left: 0.8785
+    Class Accuracy right: 0.6944
+    Class Accuracy foot: 0.1354
+    Class Accuracy tongue: 0.3333
+Subject 6 Fold 0 - Accuracy: 0.4167. Best epoch: 128
+Subject 6 Fold 1 - Accuracy: 0.4410. Best epoch: 197
+Subject 6 Fold 2 - Accuracy: 0.4097. Best epoch: 149
+Subject 6 Fold 3 - Accuracy: 0.4410. Best epoch: 192
+Subject 6 - Overall Accuracy: 0.4271.
+    Class Accuracy left: 0.6562
+    Class Accuracy right: 0.4340
+    Class Accuracy foot: 0.2326
+    Class Accuracy tongue: 0.3854
+Subject 7 Fold 0 - Accuracy: 0.8368. Best epoch: 466
+Subject 7 Fold 1 - Accuracy: 0.7569. Best epoch: 338
+Subject 7 Fold 2 - Accuracy: 0.7778. Best epoch: 295
+Subject 7 Fold 3 - Accuracy: 0.7674. Best epoch: 246
+Subject 7 - Overall Accuracy: 0.7847.
+    Class Accuracy left: 0.6458
+    Class Accuracy right: 0.8472
+    Class Accuracy foot: 0.7743
+    Class Accuracy tongue: 0.8715
+Subject 8 Fold 0 - Accuracy: 0.7222. Best epoch: 558
+Subject 8 Fold 1 - Accuracy: 0.7674. Best epoch: 476
+Subject 8 Fold 2 - Accuracy: 0.7292. Best epoch: 358
+Subject 8 Fold 3 - Accuracy: 0.6875. Best epoch: 148
+Subject 8 - Overall Accuracy: 0.7266.
+    Class Accuracy left: 0.7569
+    Class Accuracy right: 0.7847
+    Class Accuracy foot: 0.7153
+    Class Accuracy tongue: 0.6493
+Subject 9 Fold 0 - Accuracy: 0.7882. Best epoch: 172
+Subject 9 Fold 1 - Accuracy: 0.7569. Best epoch: 143
+Subject 9 Fold 2 - Accuracy: 0.7882. Best epoch: 232
+Subject 9 Fold 3 - Accuracy: 0.7986. Best epoch: 302
+Subject 9 - Overall Accuracy: 0.7830.
+    Class Accuracy left: 0.8889
+    Class Accuracy right: 0.6840
+    Class Accuracy foot: 0.7326
+    Class Accuracy tongue: 0.8264
+Total Average Accuracy: 0.6350
+    Average Class Accuracy left: 0.7157
+    Average Class Accuracy right: 0.7083
+    Average Class Accuracy foot: 0.5532
+    Average Class Accuracy tongue: 0.5629
+
+------------------------------------------------
+SAME SUBJECT EEGNet_Bob no ICA and with augment
+2025-09-09 20:44:51.901237
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.7500. Best epoch: 208
+Subject 1 Fold 1 - Accuracy: 0.7569. Best epoch: 321
+Subject 1 Fold 2 - Accuracy: 0.7639. Best epoch: 295
+Subject 1 Fold 3 - Accuracy: 0.7396. Best epoch: 195
+Subject 1 - Overall Accuracy: 0.7526.
+    Class Accuracy left: 0.8056
+    Class Accuracy right: 0.9097
+    Class Accuracy foot: 0.6979
+    Class Accuracy tongue: 0.5972
+Subject 2 Fold 0 - Accuracy: 0.3611. Best epoch: 205
+Subject 2 Fold 1 - Accuracy: 0.3681. Best epoch: 150
+Subject 2 Fold 2 - Accuracy: 0.3229. Best epoch: 185
+Subject 2 Fold 3 - Accuracy: 0.3576. Best epoch: 166
+Subject 2 - Overall Accuracy: 0.3524.
+    Class Accuracy left: 0.1319
+    Class Accuracy right: 0.5938
+    Class Accuracy foot: 0.3090
+    Class Accuracy tongue: 0.3750
+Subject 3 Fold 0 - Accuracy: 0.8438. Best epoch: 600
+Subject 3 Fold 1 - Accuracy: 0.8264. Best epoch: 203
+Subject 3 Fold 2 - Accuracy: 0.8264. Best epoch: 488
+Subject 3 Fold 3 - Accuracy: 0.8542. Best epoch: 518
+Subject 3 - Overall Accuracy: 0.8377.
+    Class Accuracy left: 0.8785
+    Class Accuracy right: 0.9861
+    Class Accuracy foot: 0.6562
+    Class Accuracy tongue: 0.8299
+Subject 4 Fold 0 - Accuracy: 0.4688. Best epoch: 184
+Subject 4 Fold 1 - Accuracy: 0.5938. Best epoch: 281
+Subject 4 Fold 2 - Accuracy: 0.5938. Best epoch: 691
+Subject 4 Fold 3 - Accuracy: 0.5625. Best epoch: 277
+Subject 4 - Overall Accuracy: 0.5547.
+    Class Accuracy left: 0.5938
+    Class Accuracy right: 0.6354
+    Class Accuracy foot: 0.5347
+    Class Accuracy tongue: 0.4549
+Subject 5 Fold 0 - Accuracy: 0.4757. Best epoch: 323
+Subject 5 Fold 1 - Accuracy: 0.5278. Best epoch: 352
+Subject 5 Fold 2 - Accuracy: 0.5174. Best epoch: 397
+Subject 5 Fold 3 - Accuracy: 0.5104. Best epoch: 236
+Subject 5 - Overall Accuracy: 0.5078.
+    Class Accuracy left: 0.8368
+    Class Accuracy right: 0.7569
+    Class Accuracy foot: 0.1458
+    Class Accuracy tongue: 0.2917
+Subject 6 Fold 0 - Accuracy: 0.3993. Best epoch: 180
+Subject 6 Fold 1 - Accuracy: 0.4062. Best epoch: 434
+Subject 6 Fold 2 - Accuracy: 0.4479. Best epoch: 135
+Subject 6 Fold 3 - Accuracy: 0.4167. Best epoch: 277
+Subject 6 - Overall Accuracy: 0.4175.
+    Class Accuracy left: 0.6840
+    Class Accuracy right: 0.4340
+    Class Accuracy foot: 0.2708
+    Class Accuracy tongue: 0.2812
+Subject 7 Fold 0 - Accuracy: 0.7014. Best epoch: 226
+Subject 7 Fold 1 - Accuracy: 0.7951. Best epoch: 281
+Subject 7 Fold 2 - Accuracy: 0.7917. Best epoch: 376
+Subject 7 Fold 3 - Accuracy: 0.8056. Best epoch: 267
+Subject 7 - Overall Accuracy: 0.7734.
+    Class Accuracy left: 0.6806
+    Class Accuracy right: 0.7986
+    Class Accuracy foot: 0.7326
+    Class Accuracy tongue: 0.8819
+Subject 8 Fold 0 - Accuracy: 0.7569. Best epoch: 557
+Subject 8 Fold 1 - Accuracy: 0.7326. Best epoch: 514
+Subject 8 Fold 2 - Accuracy: 0.7326. Best epoch: 231
+Subject 8 Fold 3 - Accuracy: 0.7257. Best epoch: 273
+Subject 8 - Overall Accuracy: 0.7370.
+    Class Accuracy left: 0.7882
+    Class Accuracy right: 0.8507
+    Class Accuracy foot: 0.6875
+    Class Accuracy tongue: 0.6215
+Subject 9 Fold 0 - Accuracy: 0.7812. Best epoch: 307
+Subject 9 Fold 1 - Accuracy: 0.6840. Best epoch: 410
+Subject 9 Fold 2 - Accuracy: 0.7257. Best epoch: 694
+Subject 9 Fold 3 - Accuracy: 0.7188. Best epoch: 193
+Subject 9 - Overall Accuracy: 0.7274.
+    Class Accuracy left: 0.8438
+    Class Accuracy right: 0.4931
+    Class Accuracy foot: 0.7500
+    Class Accuracy tongue: 0.8229
+Total Average Accuracy: 0.6290
+    Average Class Accuracy left: 0.6937
+    Average Class Accuracy right: 0.7176
+    Average Class Accuracy foot: 0.5316
+    Average Class Accuracy tongue: 0.5729
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-09 21:46:49.489954
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6937. Best epoch: 236
+Subject 1 Fold 1 - Accuracy: 0.7312. Best epoch: 426
+Subject 1 Fold 2 - Accuracy: 0.6875. Best epoch: 366
+Subject 1 Fold 3 - Accuracy: 0.7000. Best epoch: 154
+Subject 1 - Overall Accuracy: 0.7031.
+    Class Accuracy left: 0.9828
+    Class Accuracy right: 0.4234
+Subject 2 Fold 0 - Accuracy: 0.5679. Best epoch: 174
+Subject 2 Fold 1 - Accuracy: 0.5107. Best epoch: 19
+Subject 2 Fold 2 - Accuracy: 0.4857. Best epoch: 135
+Subject 2 Fold 3 - Accuracy: 0.5571. Best epoch: 149
+Subject 2 - Overall Accuracy: 0.5304.
+    Class Accuracy left: 0.5750
+    Class Accuracy right: 0.4857
+Subject 3 Fold 0 - Accuracy: 0.6312. Best epoch: 137
+Subject 3 Fold 1 - Accuracy: 0.6156. Best epoch: 72
+Subject 3 Fold 2 - Accuracy: 0.6312. Best epoch: 41
+Subject 3 Fold 3 - Accuracy: 0.6312. Best epoch: 66
+Subject 3 - Overall Accuracy: 0.6273.
+    Class Accuracy left: 0.6672
+    Class Accuracy right: 0.5875
+Subject 4 Fold 0 - Accuracy: 0.9812. Best epoch: 887
+Subject 4 Fold 1 - Accuracy: 0.9750. Best epoch: 164
+Subject 4 Fold 2 - Accuracy: 0.9781. Best epoch: 149
+Subject 4 Fold 3 - Accuracy: 0.9719. Best epoch: 292
+Subject 4 - Overall Accuracy: 0.9766.
+    Class Accuracy left: 0.9766
+    Class Accuracy right: 0.9766
+Subject 5 Fold 0 - Accuracy: 0.9219. Best epoch: 373
+Subject 5 Fold 1 - Accuracy: 0.9094. Best epoch: 161
+Subject 5 Fold 2 - Accuracy: 0.9219. Best epoch: 342
+Subject 5 Fold 3 - Accuracy: 0.8906. Best epoch: 244
+Subject 5 - Overall Accuracy: 0.9109.
+    Class Accuracy left: 0.9938
+    Class Accuracy right: 0.8281
+Subject 6 Fold 0 - Accuracy: 0.8438. Best epoch: 521
+Subject 6 Fold 1 - Accuracy: 0.8781. Best epoch: 329
+Subject 6 Fold 2 - Accuracy: 0.8313. Best epoch: 393
+Subject 6 Fold 3 - Accuracy: 0.8469. Best epoch: 284
+Subject 6 - Overall Accuracy: 0.8500.
+    Class Accuracy left: 0.7391
+    Class Accuracy right: 0.9609
+Subject 7 Fold 0 - Accuracy: 0.8187. Best epoch: 588
+Subject 7 Fold 1 - Accuracy: 0.8063. Best epoch: 173
+Subject 7 Fold 2 - Accuracy: 0.8094. Best epoch: 236
+Subject 7 Fold 3 - Accuracy: 0.8219. Best epoch: 365
+Subject 7 - Overall Accuracy: 0.8141.
+    Class Accuracy left: 0.8828
+    Class Accuracy right: 0.7453
+Subject 8 Fold 0 - Accuracy: 0.9313. Best epoch: 627
+Subject 8 Fold 1 - Accuracy: 0.9406. Best epoch: 215
+Subject 8 Fold 2 - Accuracy: 0.9313. Best epoch: 411
+Subject 8 Fold 3 - Accuracy: 0.9125. Best epoch: 471
+Subject 8 - Overall Accuracy: 0.9289.
+    Class Accuracy left: 0.9219
+    Class Accuracy right: 0.9359
+Subject 9 Fold 0 - Accuracy: 0.8688. Best epoch: 228
+Subject 9 Fold 1 - Accuracy: 0.8906. Best epoch: 128
+Subject 9 Fold 2 - Accuracy: 0.8844. Best epoch: 93
+Subject 9 Fold 3 - Accuracy: 0.8750. Best epoch: 119
+Subject 9 - Overall Accuracy: 0.8797.
+    Class Accuracy left: 0.8734
+    Class Accuracy right: 0.8859
+Total Average Accuracy: 0.8023
+    Average Class Accuracy left: 0.8458
+    Average Class Accuracy right: 0.7588
+
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-09 22:17:46.666321
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6750. Best epoch: 257
+Subject 1 Fold 1 - Accuracy: 0.7156. Best epoch: 695
+Subject 1 Fold 2 - Accuracy: 0.7031. Best epoch: 484
+Subject 1 Fold 3 - Accuracy: 0.6813. Best epoch: 101
+Subject 1 - Overall Accuracy: 0.6937.
+    Class Accuracy left: 0.9812
+    Class Accuracy right: 0.4062
+Subject 2 Fold 0 - Accuracy: 0.5286. Best epoch: 0
+Subject 2 Fold 1 - Accuracy: 0.5571. Best epoch: 183
+Subject 2 Fold 2 - Accuracy: 0.5643. Best epoch: 77
+Subject 2 Fold 3 - Accuracy: 0.5429. Best epoch: 205
+Subject 2 - Overall Accuracy: 0.5482.
+    Class Accuracy left: 0.4643
+    Class Accuracy right: 0.6321
+Subject 3 Fold 0 - Accuracy: 0.6469. Best epoch: 66
+Subject 3 Fold 1 - Accuracy: 0.6281. Best epoch: 61
+Subject 3 Fold 2 - Accuracy: 0.6219. Best epoch: 47
+Subject 3 Fold 3 - Accuracy: 0.6000. Best epoch: 27
+Subject 3 - Overall Accuracy: 0.6242.
+    Class Accuracy left: 0.6422
+    Class Accuracy right: 0.6062
+Subject 4 Fold 0 - Accuracy: 0.9750. Best epoch: 791
+Subject 4 Fold 1 - Accuracy: 0.9750. Best epoch: 721
+Subject 4 Fold 2 - Accuracy: 0.9719. Best epoch: 141
+Subject 4 Fold 3 - Accuracy: 0.9812. Best epoch: 294
+Subject 4 - Overall Accuracy: 0.9758.
+    Class Accuracy left: 0.9781
+    Class Accuracy right: 0.9734
+Subject 5 Fold 0 - Accuracy: 0.9000. Best epoch: 724
+Subject 5 Fold 1 - Accuracy: 0.9219. Best epoch: 111
+Subject 5 Fold 2 - Accuracy: 0.9281. Best epoch: 267
+Subject 5 Fold 3 - Accuracy: 0.9281. Best epoch: 125
+Subject 5 - Overall Accuracy: 0.9195.
+    Class Accuracy left: 0.9875
+    Class Accuracy right: 0.8516
+Subject 6 Fold 0 - Accuracy: 0.8438. Best epoch: 169
+Subject 6 Fold 1 - Accuracy: 0.8375. Best epoch: 335
+Subject 6 Fold 2 - Accuracy: 0.8500. Best epoch: 718
+Subject 6 Fold 3 - Accuracy: 0.8938. Best epoch: 584
+Subject 6 - Overall Accuracy: 0.8562.
+    Class Accuracy left: 0.7516
+    Class Accuracy right: 0.9609
+Subject 7 Fold 0 - Accuracy: 0.8187. Best epoch: 218
+Subject 7 Fold 1 - Accuracy: 0.8313. Best epoch: 322
+Subject 7 Fold 2 - Accuracy: 0.8156. Best epoch: 303
+Subject 7 Fold 3 - Accuracy: 0.8219. Best epoch: 265
+Subject 7 - Overall Accuracy: 0.8219.
+    Class Accuracy left: 0.8875
+    Class Accuracy right: 0.7562
+Subject 8 Fold 0 - Accuracy: 0.9437. Best epoch: 127
+Subject 8 Fold 1 - Accuracy: 0.9031. Best epoch: 389
+Subject 8 Fold 2 - Accuracy: 0.9250. Best epoch: 432
+Subject 8 Fold 3 - Accuracy: 0.9250. Best epoch: 334
+Subject 8 - Overall Accuracy: 0.9242.
+    Class Accuracy left: 0.9187
+    Class Accuracy right: 0.9297
+Subject 9 Fold 0 - Accuracy: 0.8656. Best epoch: 536
+Subject 9 Fold 1 - Accuracy: 0.8531. Best epoch: 209
+Subject 9 Fold 2 - Accuracy: 0.8875. Best epoch: 91
+Subject 9 Fold 3 - Accuracy: 0.8656. Best epoch: 378
+Subject 9 - Overall Accuracy: 0.8680.
+    Class Accuracy left: 0.8859
+    Class Accuracy right: 0.8500
+Total Average Accuracy: 0.8035
+    Average Class Accuracy left: 0.8330
+    Average Class Accuracy right: 0.7741
+
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-09 22:50:12.573336
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6719. Best epoch: 98
+Subject 1 Fold 1 - Accuracy: 0.7344. Best epoch: 303
+Subject 1 Fold 2 - Accuracy: 0.6937. Best epoch: 306
+Subject 1 Fold 3 - Accuracy: 0.7281. Best epoch: 455
+Subject 1 - Overall Accuracy: 0.7070.
+    Class Accuracy left: 0.9500
+    Class Accuracy right: 0.4641
+Subject 2 Fold 0 - Accuracy: 0.5500. Best epoch: 175
+Subject 2 Fold 1 - Accuracy: 0.5071. Best epoch: 34
+Subject 2 Fold 2 - Accuracy: 0.5000. Best epoch: 12
+Subject 2 Fold 3 - Accuracy: 0.5107. Best epoch: 222
+Subject 2 - Overall Accuracy: 0.5170.
+    Class Accuracy left: 0.6589
+    Class Accuracy right: 0.3750
+Subject 3 Fold 0 - Accuracy: 0.6250. Best epoch: 91
+Subject 3 Fold 1 - Accuracy: 0.6344. Best epoch: 75
+Subject 3 Fold 2 - Accuracy: 0.6219. Best epoch: 59
+Subject 3 Fold 3 - Accuracy: 0.6469. Best epoch: 47
+Subject 3 - Overall Accuracy: 0.6320.
+    Class Accuracy left: 0.6031
+    Class Accuracy right: 0.6609
+Subject 4 Fold 0 - Accuracy: 0.9781. Best epoch: 189
+Subject 4 Fold 1 - Accuracy: 0.9781. Best epoch: 395
+Subject 4 Fold 2 - Accuracy: 0.9688. Best epoch: 429
+Subject 4 Fold 3 - Accuracy: 0.9781. Best epoch: 760
+Subject 4 - Overall Accuracy: 0.9758.
+    Class Accuracy left: 0.9812
+    Class Accuracy right: 0.9703
+Subject 5 Fold 0 - Accuracy: 0.9031. Best epoch: 310
+Subject 5 Fold 1 - Accuracy: 0.9250. Best epoch: 483
+Subject 5 Fold 2 - Accuracy: 0.8938. Best epoch: 618
+Subject 5 Fold 3 - Accuracy: 0.9031. Best epoch: 482
+Subject 5 - Overall Accuracy: 0.9062.
+    Class Accuracy left: 0.9812
+    Class Accuracy right: 0.8313
+Subject 6 Fold 0 - Accuracy: 0.8469. Best epoch: 578
+Subject 6 Fold 1 - Accuracy: 0.8625. Best epoch: 264
+Subject 6 Fold 2 - Accuracy: 0.8812. Best epoch: 211
+Subject 6 Fold 3 - Accuracy: 0.8438. Best epoch: 583
+Subject 6 - Overall Accuracy: 0.8586.
+    Class Accuracy left: 0.7547
+    Class Accuracy right: 0.9625
+Subject 7 Fold 0 - Accuracy: 0.8344. Best epoch: 163
+Subject 7 Fold 1 - Accuracy: 0.8094. Best epoch: 221
+Subject 7 Fold 2 - Accuracy: 0.7969. Best epoch: 233
+Subject 7 Fold 3 - Accuracy: 0.7469. Best epoch: 73
+Subject 7 - Overall Accuracy: 0.7969.
+    Class Accuracy left: 0.8953
+    Class Accuracy right: 0.6984
+Subject 8 Fold 0 - Accuracy: 0.9375. Best epoch: 62
+Subject 8 Fold 1 - Accuracy: 0.9406. Best epoch: 278
+Subject 8 Fold 2 - Accuracy: 0.9250. Best epoch: 72
+Subject 8 Fold 3 - Accuracy: 0.9250. Best epoch: 137
+Subject 8 - Overall Accuracy: 0.9320.
+    Class Accuracy left: 0.9406
+    Class Accuracy right: 0.9234
+Subject 9 Fold 0 - Accuracy: 0.8719. Best epoch: 98
+Subject 9 Fold 1 - Accuracy: 0.8719. Best epoch: 90
+Subject 9 Fold 2 - Accuracy: 0.8750. Best epoch: 166
+Subject 9 Fold 3 - Accuracy: 0.8750. Best epoch: 174
+Subject 9 - Overall Accuracy: 0.8734.
+    Class Accuracy left: 0.9141
+    Class Accuracy right: 0.8328
+Total Average Accuracy: 0.7999
+    Average Class Accuracy left: 0.8532
+    Average Class Accuracy right: 0.7465
+
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-09 23:19:19.468525
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.7031. Best epoch: 479
+Subject 1 Fold 1 - Accuracy: 0.6844. Best epoch: 149
+Subject 1 Fold 2 - Accuracy: 0.7250. Best epoch: 137
+Subject 1 Fold 3 - Accuracy: 0.7219. Best epoch: 879
+Subject 1 - Overall Accuracy: 0.7086.
+    Class Accuracy left: 0.9437
+    Class Accuracy right: 0.4734
+Subject 2 Fold 0 - Accuracy: 0.4893. Best epoch: 31
+Subject 2 Fold 1 - Accuracy: 0.5571. Best epoch: 45
+Subject 2 Fold 2 - Accuracy: 0.5464. Best epoch: 49
+Subject 2 Fold 3 - Accuracy: 0.5679. Best epoch: 53
+Subject 2 - Overall Accuracy: 0.5402.
+    Class Accuracy left: 0.6018
+    Class Accuracy right: 0.4786
+Subject 3 Fold 0 - Accuracy: 0.5875. Best epoch: 67
+Subject 3 Fold 1 - Accuracy: 0.6375. Best epoch: 351
+Subject 3 Fold 2 - Accuracy: 0.6156. Best epoch: 47
+Subject 3 Fold 3 - Accuracy: 0.6562. Best epoch: 113
+Subject 3 - Overall Accuracy: 0.6242.
+    Class Accuracy left: 0.5828
+    Class Accuracy right: 0.6656
+Subject 4 Fold 0 - Accuracy: 0.9750. Best epoch: 514
+Subject 4 Fold 1 - Accuracy: 0.9781. Best epoch: 620
+Subject 4 Fold 2 - Accuracy: 0.9656. Best epoch: 142
+Subject 4 Fold 3 - Accuracy: 0.9750. Best epoch: 771
+Subject 4 - Overall Accuracy: 0.9734.
+    Class Accuracy left: 0.9703
+    Class Accuracy right: 0.9766
+Subject 5 Fold 0 - Accuracy: 0.8844. Best epoch: 104
+Subject 5 Fold 1 - Accuracy: 0.9281. Best epoch: 207
+Subject 5 Fold 2 - Accuracy: 0.9000. Best epoch: 348
+Subject 5 Fold 3 - Accuracy: 0.9313. Best epoch: 392
+Subject 5 - Overall Accuracy: 0.9109.
+    Class Accuracy left: 0.9906
+    Class Accuracy right: 0.8313
+Subject 6 Fold 0 - Accuracy: 0.9000. Best epoch: 634
+Subject 6 Fold 1 - Accuracy: 0.8031. Best epoch: 75
+Subject 6 Fold 2 - Accuracy: 0.8719. Best epoch: 723
+Subject 6 Fold 3 - Accuracy: 0.8406. Best epoch: 199
+Subject 6 - Overall Accuracy: 0.8539.
+    Class Accuracy left: 0.7422
+    Class Accuracy right: 0.9656
+Subject 7 Fold 0 - Accuracy: 0.8031. Best epoch: 188
+Subject 7 Fold 1 - Accuracy: 0.8313. Best epoch: 167
+Subject 7 Fold 2 - Accuracy: 0.8156. Best epoch: 181
+Subject 7 Fold 3 - Accuracy: 0.7875. Best epoch: 296
+Subject 7 - Overall Accuracy: 0.8094.
+    Class Accuracy left: 0.8844
+    Class Accuracy right: 0.7344
+Subject 8 Fold 0 - Accuracy: 0.9062. Best epoch: 388
+Subject 8 Fold 1 - Accuracy: 0.9062. Best epoch: 517
+Subject 8 Fold 2 - Accuracy: 0.9156. Best epoch: 177
+Subject 8 Fold 3 - Accuracy: 0.9281. Best epoch: 164
+Subject 8 - Overall Accuracy: 0.9141.
+    Class Accuracy left: 0.9094
+    Class Accuracy right: 0.9187
+Subject 9 Fold 0 - Accuracy: 0.8938. Best epoch: 142
+Subject 9 Fold 1 - Accuracy: 0.8469. Best epoch: 72
+Subject 9 Fold 2 - Accuracy: 0.8688. Best epoch: 236
+Subject 9 Fold 3 - Accuracy: 0.8719. Best epoch: 159
+Subject 9 - Overall Accuracy: 0.8703.
+    Class Accuracy left: 0.8984
+    Class Accuracy right: 0.8422
+Total Average Accuracy: 0.8006
+    Average Class Accuracy left: 0.8360
+    Average Class Accuracy right: 0.7652
+
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-09 23:50:00.500784
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 8, D: 2, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6687. Best epoch: 786
+Subject 1 Fold 1 - Accuracy: 0.6750. Best epoch: 235
+Subject 1 Fold 2 - Accuracy: 0.6781. Best epoch: 547
+Subject 1 Fold 3 - Accuracy: 0.6875. Best epoch: 168
+Subject 1 - Overall Accuracy: 0.6773.
+    Class Accuracy left: 0.9797
+    Class Accuracy right: 0.3750
+Subject 2 Fold 0 - Accuracy: 0.5321. Best epoch: 0
+Subject 2 Fold 1 - Accuracy: 0.5393. Best epoch: 14
+Subject 2 Fold 2 - Accuracy: 0.4821. Best epoch: 130
+Subject 2 Fold 3 - Accuracy: 0.5429. Best epoch: 59
+Subject 2 - Overall Accuracy: 0.5241.
+    Class Accuracy left: 0.5429
+    Class Accuracy right: 0.5054
+Subject 3 Fold 0 - Accuracy: 0.6000. Best epoch: 150
+Subject 3 Fold 1 - Accuracy: 0.6062. Best epoch: 47
+Subject 3 Fold 2 - Accuracy: 0.6156. Best epoch: 65
+Subject 3 Fold 3 - Accuracy: 0.6500. Best epoch: 55
+Subject 3 - Overall Accuracy: 0.6180.
+    Class Accuracy left: 0.6109
+    Class Accuracy right: 0.6250
+Subject 4 Fold 0 - Accuracy: 0.9750. Best epoch: 391
+Subject 4 Fold 1 - Accuracy: 0.9781. Best epoch: 330
+Subject 4 Fold 2 - Accuracy: 0.9750. Best epoch: 664
+Subject 4 Fold 3 - Accuracy: 0.9625. Best epoch: 222
+Subject 4 - Overall Accuracy: 0.9727.
+    Class Accuracy left: 0.9719
+    Class Accuracy right: 0.9734
+Subject 5 Fold 0 - Accuracy: 0.8938. Best epoch: 239
+Subject 5 Fold 1 - Accuracy: 0.9313. Best epoch: 291
+Subject 5 Fold 2 - Accuracy: 0.8969. Best epoch: 423
+Subject 5 Fold 3 - Accuracy: 0.9031. Best epoch: 349
+Subject 5 - Overall Accuracy: 0.9062.
+    Class Accuracy left: 0.9781
+    Class Accuracy right: 0.8344
+Subject 6 Fold 0 - Accuracy: 0.8375. Best epoch: 522
+Subject 6 Fold 1 - Accuracy: 0.8844. Best epoch: 168
+Subject 6 Fold 2 - Accuracy: 0.8375. Best epoch: 482
+Subject 6 Fold 3 - Accuracy: 0.8500. Best epoch: 332
+Subject 6 - Overall Accuracy: 0.8523.
+    Class Accuracy left: 0.7469
+    Class Accuracy right: 0.9578
+Subject 7 Fold 0 - Accuracy: 0.8281. Best epoch: 320
+Subject 7 Fold 1 - Accuracy: 0.8125. Best epoch: 579
+Subject 7 Fold 2 - Accuracy: 0.8156. Best epoch: 261
+Subject 7 Fold 3 - Accuracy: 0.8094. Best epoch: 348
+Subject 7 - Overall Accuracy: 0.8164.
+    Class Accuracy left: 0.8844
+    Class Accuracy right: 0.7484
+Subject 8 Fold 0 - Accuracy: 0.9250. Best epoch: 505
+Subject 8 Fold 1 - Accuracy: 0.9250. Best epoch: 410
+Subject 8 Fold 2 - Accuracy: 0.9344. Best epoch: 263
+Subject 8 Fold 3 - Accuracy: 0.9156. Best epoch: 331
+Subject 8 - Overall Accuracy: 0.9250.
+    Class Accuracy left: 0.9172
+    Class Accuracy right: 0.9328
+Subject 9 Fold 0 - Accuracy: 0.8688. Best epoch: 211
+Subject 9 Fold 1 - Accuracy: 0.8875. Best epoch: 215
+Subject 9 Fold 2 - Accuracy: 0.8719. Best epoch: 138
+Subject 9 Fold 3 - Accuracy: 0.8688. Best epoch: 312
+Subject 9 - Overall Accuracy: 0.8742.
+    Class Accuracy left: 0.8922
+    Class Accuracy right: 0.8562
+Total Average Accuracy: 0.7963
+    Average Class Accuracy left: 0.8360
+    Average Class Accuracy right: 0.7565
+
+------------------------------------------------
+SAME SUBJECT EEGNet 4,2 (2b)
+2025-09-10 00:22:11.953305
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6906. Best epoch: 523
+Subject 1 Fold 1 - Accuracy: 0.7000. Best epoch: 301
+Subject 1 Fold 2 - Accuracy: 0.6781. Best epoch: 426
+Subject 1 Fold 3 - Accuracy: 0.6656. Best epoch: 379
+Subject 1 - Overall Accuracy: 0.6836.
+    Class Accuracy left: 0.9844
+    Class Accuracy right: 0.3828
+Subject 2 Fold 0 - Accuracy: 0.5464. Best epoch: 36
+Subject 2 Fold 1 - Accuracy: 0.5250. Best epoch: 224
+Subject 2 Fold 2 - Accuracy: 0.4929. Best epoch: 161
+Subject 2 Fold 3 - Accuracy: 0.5643. Best epoch: 44
+Subject 2 - Overall Accuracy: 0.5321.
+    Class Accuracy left: 0.5732
+    Class Accuracy right: 0.4911
+Subject 3 Fold 0 - Accuracy: 0.6469. Best epoch: 106
+Subject 3 Fold 1 - Accuracy: 0.5906. Best epoch: 49
+Subject 3 Fold 2 - Accuracy: 0.6188. Best epoch: 73
+Subject 3 Fold 3 - Accuracy: 0.6312. Best epoch: 88
+Subject 3 - Overall Accuracy: 0.6219.
+    Class Accuracy left: 0.6234
+    Class Accuracy right: 0.6203
+Subject 4 Fold 0 - Accuracy: 0.9781. Best epoch: 405
+Subject 4 Fold 1 - Accuracy: 0.9531. Best epoch: 265
+Subject 4 Fold 2 - Accuracy: 0.9844. Best epoch: 776
+Subject 4 Fold 3 - Accuracy: 0.9750. Best epoch: 735
+Subject 4 - Overall Accuracy: 0.9727.
+    Class Accuracy left: 0.9703
+    Class Accuracy right: 0.9750
+Subject 5 Fold 0 - Accuracy: 0.8844. Best epoch: 750
+Subject 5 Fold 1 - Accuracy: 0.9375. Best epoch: 402
+Subject 5 Fold 2 - Accuracy: 0.9000. Best epoch: 251
+Subject 5 Fold 3 - Accuracy: 0.8906. Best epoch: 149
+Subject 5 - Overall Accuracy: 0.9031.
+    Class Accuracy left: 0.9844
+    Class Accuracy right: 0.8219
+Subject 6 Fold 0 - Accuracy: 0.8281. Best epoch: 669
+Subject 6 Fold 1 - Accuracy: 0.8594. Best epoch: 441
+Subject 6 Fold 2 - Accuracy: 0.8500. Best epoch: 275
+Subject 6 Fold 3 - Accuracy: 0.8344. Best epoch: 486
+Subject 6 - Overall Accuracy: 0.8430.
+    Class Accuracy left: 0.7219
+    Class Accuracy right: 0.9641
+Subject 7 Fold 0 - Accuracy: 0.8219. Best epoch: 705
+Subject 7 Fold 1 - Accuracy: 0.8125. Best epoch: 106
+Subject 7 Fold 2 - Accuracy: 0.7656. Best epoch: 123
+Subject 7 Fold 3 - Accuracy: 0.8000. Best epoch: 588
+Subject 7 - Overall Accuracy: 0.8000.
+    Class Accuracy left: 0.9109
+    Class Accuracy right: 0.6891
+Subject 8 Fold 0 - Accuracy: 0.9156. Best epoch: 294
+Subject 8 Fold 1 - Accuracy: 0.9031. Best epoch: 402
+Subject 8 Fold 2 - Accuracy: 0.9250. Best epoch: 519
+Subject 8 Fold 3 - Accuracy: 0.9406. Best epoch: 308
+Subject 8 - Overall Accuracy: 0.9211.
+    Class Accuracy left: 0.9141
+    Class Accuracy right: 0.9281
+Subject 9 Fold 0 - Accuracy: 0.8625. Best epoch: 534
+Subject 9 Fold 1 - Accuracy: 0.8656. Best epoch: 219
+Subject 9 Fold 2 - Accuracy: 0.8562. Best epoch: 538
+Subject 9 Fold 3 - Accuracy: 0.8812. Best epoch: 399
+Subject 9 - Overall Accuracy: 0.8664.
+    Class Accuracy left: 0.8484
+    Class Accuracy right: 0.8844
+Total Average Accuracy: 0.7938
+    Average Class Accuracy left: 0.8368
+    Average Class Accuracy right: 0.7507
+
+------------------------------------------------
+SAME SUBJECT EEGNet 4,2 (2b)
+2025-09-10 00:57:15.555408
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6937. Best epoch: 458
+Subject 1 Fold 1 - Accuracy: 0.6969. Best epoch: 973
+Subject 1 Fold 2 - Accuracy: 0.6594. Best epoch: 162
+Subject 1 Fold 3 - Accuracy: 0.6250. Best epoch: 308
+Subject 1 - Overall Accuracy: 0.6687.
+    Class Accuracy left: 0.9750
+    Class Accuracy right: 0.3625
+Subject 2 Fold 0 - Accuracy: 0.5750. Best epoch: 203
+Subject 2 Fold 1 - Accuracy: 0.5357. Best epoch: 27
+Subject 2 Fold 2 - Accuracy: 0.5214. Best epoch: 147
+Subject 2 Fold 3 - Accuracy: 0.5036. Best epoch: 158
+Subject 2 - Overall Accuracy: 0.5339.
+    Class Accuracy left: 0.5357
+    Class Accuracy right: 0.5321
+Subject 3 Fold 0 - Accuracy: 0.6250. Best epoch: 34
+Subject 3 Fold 1 - Accuracy: 0.6438. Best epoch: 133
+Subject 3 Fold 2 - Accuracy: 0.6094. Best epoch: 49
+Subject 3 Fold 3 - Accuracy: 0.6438. Best epoch: 49
+Subject 3 - Overall Accuracy: 0.6305.
+    Class Accuracy left: 0.6453
+    Class Accuracy right: 0.6156
+Subject 4 Fold 0 - Accuracy: 0.9781. Best epoch: 497
+Subject 4 Fold 1 - Accuracy: 0.9781. Best epoch: 287
+Subject 4 Fold 2 - Accuracy: 0.9594. Best epoch: 328
+Subject 4 Fold 3 - Accuracy: 0.9719. Best epoch: 637
+Subject 4 - Overall Accuracy: 0.9719.
+    Class Accuracy left: 0.9797
+    Class Accuracy right: 0.9641
+Subject 5 Fold 0 - Accuracy: 0.9062. Best epoch: 648
+Subject 5 Fold 1 - Accuracy: 0.9062. Best epoch: 374
+Subject 5 Fold 2 - Accuracy: 0.8781. Best epoch: 487
+Subject 5 Fold 3 - Accuracy: 0.8906. Best epoch: 455
+Subject 5 - Overall Accuracy: 0.8953.
+    Class Accuracy left: 0.9875
+    Class Accuracy right: 0.8031
+Subject 6 Fold 0 - Accuracy: 0.8656. Best epoch: 507
+Subject 6 Fold 1 - Accuracy: 0.8594. Best epoch: 497
+Subject 6 Fold 2 - Accuracy: 0.8625. Best epoch: 600
+Subject 6 Fold 3 - Accuracy: 0.8531. Best epoch: 204
+Subject 6 - Overall Accuracy: 0.8602.
+    Class Accuracy left: 0.7609
+    Class Accuracy right: 0.9594
+Subject 7 Fold 0 - Accuracy: 0.6406. Best epoch: 22
+Subject 7 Fold 1 - Accuracy: 0.7969. Best epoch: 409
+Subject 7 Fold 2 - Accuracy: 0.8125. Best epoch: 688
+Subject 7 Fold 3 - Accuracy: 0.8063. Best epoch: 451
+Subject 7 - Overall Accuracy: 0.7641.
+    Class Accuracy left: 0.8141
+    Class Accuracy right: 0.7141
+Subject 8 Fold 0 - Accuracy: 0.9313. Best epoch: 215
+Subject 8 Fold 1 - Accuracy: 0.9187. Best epoch: 148
+Subject 8 Fold 2 - Accuracy: 0.9219. Best epoch: 243
+Subject 8 Fold 3 - Accuracy: 0.9219. Best epoch: 289
+Subject 8 - Overall Accuracy: 0.9234.
+    Class Accuracy left: 0.9266
+    Class Accuracy right: 0.9203
+Subject 9 Fold 0 - Accuracy: 0.8969. Best epoch: 445
+Subject 9 Fold 1 - Accuracy: 0.8562. Best epoch: 341
+Subject 9 Fold 2 - Accuracy: 0.8625. Best epoch: 222
+Subject 9 Fold 3 - Accuracy: 0.8656. Best epoch: 235
+Subject 9 - Overall Accuracy: 0.8703.
+    Class Accuracy left: 0.8672
+    Class Accuracy right: 0.8734
+Total Average Accuracy: 0.7909
+    Average Class Accuracy left: 0.8324
+    Average Class Accuracy right: 0.7494
+
+------------------------------------------------
+SAME SUBJECT EEGNet 4,2 (2b)
+2025-09-10 01:29:52.695484
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6781. Best epoch: 421
+Subject 1 Fold 1 - Accuracy: 0.7406. Best epoch: 294
+Subject 1 Fold 2 - Accuracy: 0.7063. Best epoch: 799
+Subject 1 Fold 3 - Accuracy: 0.6625. Best epoch: 219
+Subject 1 - Overall Accuracy: 0.6969.
+    Class Accuracy left: 0.9688
+    Class Accuracy right: 0.4250
+Subject 2 Fold 0 - Accuracy: 0.5036. Best epoch: 130
+Subject 2 Fold 1 - Accuracy: 0.5464. Best epoch: 31
+Subject 2 Fold 2 - Accuracy: 0.5393. Best epoch: 141
+Subject 2 Fold 3 - Accuracy: 0.5571. Best epoch: 0
+Subject 2 - Overall Accuracy: 0.5366.
+    Class Accuracy left: 0.4893
+    Class Accuracy right: 0.5839
+Subject 3 Fold 0 - Accuracy: 0.6000. Best epoch: 67
+Subject 3 Fold 1 - Accuracy: 0.6000. Best epoch: 124
+Subject 3 Fold 2 - Accuracy: 0.6250. Best epoch: 201
+Subject 3 Fold 3 - Accuracy: 0.6531. Best epoch: 167
+Subject 3 - Overall Accuracy: 0.6195.
+    Class Accuracy left: 0.6141
+    Class Accuracy right: 0.6250
+Subject 4 Fold 0 - Accuracy: 0.9688. Best epoch: 997
+Subject 4 Fold 1 - Accuracy: 0.9688. Best epoch: 408
+Subject 4 Fold 2 - Accuracy: 0.9812. Best epoch: 765
+Subject 4 Fold 3 - Accuracy: 0.9719. Best epoch: 585
+Subject 4 - Overall Accuracy: 0.9727.
+    Class Accuracy left: 0.9766
+    Class Accuracy right: 0.9688
+Subject 5 Fold 0 - Accuracy: 0.8875. Best epoch: 482
+Subject 5 Fold 1 - Accuracy: 0.9156. Best epoch: 98
+Subject 5 Fold 2 - Accuracy: 0.9031. Best epoch: 678
+Subject 5 Fold 3 - Accuracy: 0.9000. Best epoch: 319
+Subject 5 - Overall Accuracy: 0.9016.
+    Class Accuracy left: 0.9891
+    Class Accuracy right: 0.8141
+Subject 6 Fold 0 - Accuracy: 0.8531. Best epoch: 493
+Subject 6 Fold 1 - Accuracy: 0.8625. Best epoch: 527
+Subject 6 Fold 2 - Accuracy: 0.8281. Best epoch: 890
+Subject 6 Fold 3 - Accuracy: 0.8438. Best epoch: 146
+Subject 6 - Overall Accuracy: 0.8469.
+    Class Accuracy left: 0.7266
+    Class Accuracy right: 0.9672
+Subject 7 Fold 0 - Accuracy: 0.7781. Best epoch: 136
+Subject 7 Fold 1 - Accuracy: 0.8344. Best epoch: 334
+Subject 7 Fold 2 - Accuracy: 0.6312. Best epoch: 27
+Subject 7 Fold 3 - Accuracy: 0.8094. Best epoch: 316
+Subject 7 - Overall Accuracy: 0.7633.
+    Class Accuracy left: 0.8141
+    Class Accuracy right: 0.7125
+Subject 8 Fold 0 - Accuracy: 0.9250. Best epoch: 221
+Subject 8 Fold 1 - Accuracy: 0.9187. Best epoch: 698
+Subject 8 Fold 2 - Accuracy: 0.8969. Best epoch: 212
+Subject 8 Fold 3 - Accuracy: 0.9156. Best epoch: 200
+Subject 8 - Overall Accuracy: 0.9141.
+    Class Accuracy left: 0.9094
+    Class Accuracy right: 0.9187
+Subject 9 Fold 0 - Accuracy: 0.8750. Best epoch: 185
+Subject 9 Fold 1 - Accuracy: 0.8688. Best epoch: 132
+Subject 9 Fold 2 - Accuracy: 0.8625. Best epoch: 172
+Subject 9 Fold 3 - Accuracy: 0.8812. Best epoch: 231
+Subject 9 - Overall Accuracy: 0.8719.
+    Class Accuracy left: 0.8641
+    Class Accuracy right: 0.8797
+Total Average Accuracy: 0.7915
+    Average Class Accuracy left: 0.8169
+    Average Class Accuracy right: 0.7661
+
+------------------------------------------------
+SAME SUBJECT EEGNet 4,2 (2b)
+2025-09-10 02:02:36.234994
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.7281. Best epoch: 529
+Subject 1 Fold 1 - Accuracy: 0.7281. Best epoch: 804
+Subject 1 Fold 2 - Accuracy: 0.6687. Best epoch: 816
+Subject 1 Fold 3 - Accuracy: 0.6750. Best epoch: 975
+Subject 1 - Overall Accuracy: 0.7000.
+    Class Accuracy left: 0.9594
+    Class Accuracy right: 0.4406
+Subject 2 Fold 0 - Accuracy: 0.4893. Best epoch: 32
+Subject 2 Fold 1 - Accuracy: 0.5393. Best epoch: 268
+Subject 2 Fold 2 - Accuracy: 0.5714. Best epoch: 91
+Subject 2 Fold 3 - Accuracy: 0.5464. Best epoch: 305
+Subject 2 - Overall Accuracy: 0.5366.
+    Class Accuracy left: 0.5500
+    Class Accuracy right: 0.5232
+Subject 3 Fold 0 - Accuracy: 0.6312. Best epoch: 226
+Subject 3 Fold 1 - Accuracy: 0.6031. Best epoch: 169
+Subject 3 Fold 2 - Accuracy: 0.6031. Best epoch: 80
+Subject 3 Fold 3 - Accuracy: 0.6281. Best epoch: 66
+Subject 3 - Overall Accuracy: 0.6164.
+    Class Accuracy left: 0.6312
+    Class Accuracy right: 0.6016
+Subject 4 Fold 0 - Accuracy: 0.9781. Best epoch: 424
+Subject 4 Fold 1 - Accuracy: 0.9781. Best epoch: 967
+Subject 4 Fold 2 - Accuracy: 0.9781. Best epoch: 890
+Subject 4 Fold 3 - Accuracy: 0.9750. Best epoch: 164
+Subject 4 - Overall Accuracy: 0.9773.
+    Class Accuracy left: 0.9781
+    Class Accuracy right: 0.9766
+Subject 5 Fold 0 - Accuracy: 0.9094. Best epoch: 749
+Subject 5 Fold 1 - Accuracy: 0.8719. Best epoch: 261
+Subject 5 Fold 2 - Accuracy: 0.9406. Best epoch: 306
+Subject 5 Fold 3 - Accuracy: 0.8375. Best epoch: 486
+Subject 5 - Overall Accuracy: 0.8898.
+    Class Accuracy left: 0.9953
+    Class Accuracy right: 0.7844
+Subject 6 Fold 0 - Accuracy: 0.8375. Best epoch: 312
+Subject 6 Fold 1 - Accuracy: 0.8438. Best epoch: 500
+Subject 6 Fold 2 - Accuracy: 0.8531. Best epoch: 381
+Subject 6 Fold 3 - Accuracy: 0.8469. Best epoch: 900
+Subject 6 - Overall Accuracy: 0.8453.
+    Class Accuracy left: 0.7297
+    Class Accuracy right: 0.9609
+Subject 7 Fold 0 - Accuracy: 0.8219. Best epoch: 763
+Subject 7 Fold 1 - Accuracy: 0.8406. Best epoch: 390
+Subject 7 Fold 2 - Accuracy: 0.8094. Best epoch: 506
+Subject 7 Fold 3 - Accuracy: 0.7812. Best epoch: 159
+Subject 7 - Overall Accuracy: 0.8133.
+    Class Accuracy left: 0.8766
+    Class Accuracy right: 0.7500
+Subject 8 Fold 0 - Accuracy: 0.9187. Best epoch: 270
+Subject 8 Fold 1 - Accuracy: 0.9281. Best epoch: 212
+Subject 8 Fold 2 - Accuracy: 0.9125. Best epoch: 217
+Subject 8 Fold 3 - Accuracy: 0.9344. Best epoch: 204
+Subject 8 - Overall Accuracy: 0.9234.
+    Class Accuracy left: 0.9281
+    Class Accuracy right: 0.9187
+Subject 9 Fold 0 - Accuracy: 0.8844. Best epoch: 417
+Subject 9 Fold 1 - Accuracy: 0.8719. Best epoch: 194
+Subject 9 Fold 2 - Accuracy: 0.8781. Best epoch: 163
+Subject 9 Fold 3 - Accuracy: 0.8906. Best epoch: 111
+Subject 9 - Overall Accuracy: 0.8813.
+    Class Accuracy left: 0.8656
+    Class Accuracy right: 0.8969
+Total Average Accuracy: 0.7982
+    Average Class Accuracy left: 0.8349
+    Average Class Accuracy right: 0.7614
+
+------------------------------------------------
+SAME SUBJECT EEGNet 4,2 (2b)
+2025-09-10 02:38:59.248492
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6844. Best epoch: 283
+Subject 1 Fold 1 - Accuracy: 0.6813. Best epoch: 569
+Subject 1 Fold 2 - Accuracy: 0.6687. Best epoch: 202
+Subject 1 Fold 3 - Accuracy: 0.6969. Best epoch: 448
+Subject 1 - Overall Accuracy: 0.6828.
+    Class Accuracy left: 0.9781
+    Class Accuracy right: 0.3875
+Subject 2 Fold 0 - Accuracy: 0.5500. Best epoch: 38
+Subject 2 Fold 1 - Accuracy: 0.5000. Best epoch: 71
+Subject 2 Fold 2 - Accuracy: 0.5036. Best epoch: 90
+Subject 2 Fold 3 - Accuracy: 0.5321. Best epoch: 81
+Subject 2 - Overall Accuracy: 0.5214.
+    Class Accuracy left: 0.4875
+    Class Accuracy right: 0.5554
+Subject 3 Fold 0 - Accuracy: 0.6438. Best epoch: 46
+Subject 3 Fold 1 - Accuracy: 0.6156. Best epoch: 255
+Subject 3 Fold 2 - Accuracy: 0.6031. Best epoch: 283
+Subject 3 Fold 3 - Accuracy: 0.6219. Best epoch: 306
+Subject 3 - Overall Accuracy: 0.6211.
+    Class Accuracy left: 0.6359
+    Class Accuracy right: 0.6062
+Subject 4 Fold 0 - Accuracy: 0.9656. Best epoch: 971
+Subject 4 Fold 1 - Accuracy: 0.9750. Best epoch: 327
+Subject 4 Fold 2 - Accuracy: 0.9781. Best epoch: 250
+Subject 4 Fold 3 - Accuracy: 0.9844. Best epoch: 677
+Subject 4 - Overall Accuracy: 0.9758.
+    Class Accuracy left: 0.9797
+    Class Accuracy right: 0.9719
+Subject 5 Fold 0 - Accuracy: 0.9156. Best epoch: 235
+Subject 5 Fold 1 - Accuracy: 0.8750. Best epoch: 277
+Subject 5 Fold 2 - Accuracy: 0.9219. Best epoch: 433
+Subject 5 Fold 3 - Accuracy: 0.9281. Best epoch: 605
+Subject 5 - Overall Accuracy: 0.9102.
+    Class Accuracy left: 0.9891
+    Class Accuracy right: 0.8312
+Subject 6 Fold 0 - Accuracy: 0.8250. Best epoch: 296
+Subject 6 Fold 1 - Accuracy: 0.8250. Best epoch: 689
+Subject 6 Fold 2 - Accuracy: 0.8344. Best epoch: 789
+Subject 6 Fold 3 - Accuracy: 0.7906. Best epoch: 518
+Subject 6 - Overall Accuracy: 0.8187.
+    Class Accuracy left: 0.6781
+    Class Accuracy right: 0.9594
+Subject 7 Fold 0 - Accuracy: 0.7000. Best epoch: 71
+Subject 7 Fold 1 - Accuracy: 0.8156. Best epoch: 352
+Subject 7 Fold 2 - Accuracy: 0.8094. Best epoch: 443
+Subject 7 Fold 3 - Accuracy: 0.8219. Best epoch: 416
+Subject 7 - Overall Accuracy: 0.7867.
+    Class Accuracy left: 0.8578
+    Class Accuracy right: 0.7156
+Subject 8 Fold 0 - Accuracy: 0.9250. Best epoch: 62
+Subject 8 Fold 1 - Accuracy: 0.9125. Best epoch: 134
+Subject 8 Fold 2 - Accuracy: 0.9094. Best epoch: 177
+Subject 8 Fold 3 - Accuracy: 0.9031. Best epoch: 981
+Subject 8 - Overall Accuracy: 0.9125.
+    Class Accuracy left: 0.9125
+    Class Accuracy right: 0.9125
+Subject 9 Fold 0 - Accuracy: 0.9031. Best epoch: 166
+Subject 9 Fold 1 - Accuracy: 0.8844. Best epoch: 495
+Subject 9 Fold 2 - Accuracy: 0.8719. Best epoch: 121
+Subject 9 Fold 3 - Accuracy: 0.8719. Best epoch: 509
+Subject 9 - Overall Accuracy: 0.8828.
+    Class Accuracy left: 0.8859
+    Class Accuracy right: 0.8797
+Total Average Accuracy: 0.7902
+    Average Class Accuracy left: 0.8227
+    Average Class Accuracy right: 0.7577
+
+------------------------------------------------
+SAME SUBJECT EEGNet 8,2 (2b)
+2025-09-10 03:12:53.221954
+BCI 2b
+Input: timeseries, Model: EEGNet
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 2, F2: 8, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation: None
+------------------------------------------------
+Subject 1 Fold 0 - Accuracy: 0.6937. Best epoch: 959
+Subject 1 Fold 1 - Accuracy: 0.7031. Best epoch: 699
+Subject 1 Fold 2 - Accuracy: 0.6531. Best epoch: 422
+Subject 1 Fold 3 - Accuracy: 0.7063. Best epoch: 385
+Subject 1 - Overall Accuracy: 0.6891.
+    Class Accuracy left: 0.9766
+    Class Accuracy right: 0.4016
+Subject 2 Fold 0 - Accuracy: 0.5179. Best epoch: 54
+Subject 2 Fold 1 - Accuracy: 0.5071. Best epoch: 59
+Subject 2 Fold 2 - Accuracy: 0.5107. Best epoch: 227
+Subject 2 Fold 3 - Accuracy: 0.5857. Best epoch: 447
+Subject 2 - Overall Accuracy: 0.5304.
+    Class Accuracy left: 0.5929
+    Class Accuracy right: 0.4679
+Subject 3 Fold 0 - Accuracy: 0.5813. Best epoch: 95
+Subject 3 Fold 1 - Accuracy: 0.6062. Best epoch: 120
+Subject 3 Fold 2 - Accuracy: 0.6156. Best epoch: 37
+Subject 3 Fold 3 - Accuracy: 0.6594. Best epoch: 104
+Subject 3 - Overall Accuracy: 0.6156.
+    Class Accuracy left: 0.6125
+    Class Accuracy right: 0.6188
+Subject 4 Fold 0 - Accuracy: 0.9719. Best epoch: 524
+Subject 4 Fold 1 - Accuracy: 0.9750. Best epoch: 648
+Subject 4 Fold 2 - Accuracy: 0.9750. Best epoch: 629
+Subject 4 Fold 3 - Accuracy: 0.9750. Best epoch: 892
+Subject 4 - Overall Accuracy: 0.9742.
+    Class Accuracy left: 0.9797
+    Class Accuracy right: 0.9688
+Subject 5 Fold 0 - Accuracy: 0.9031. Best epoch: 303
+Subject 5 Fold 1 - Accuracy: 0.9094. Best epoch: 345
+Subject 5 Fold 2 - Accuracy: 0.8844. Best epoch: 323
+Subject 5 Fold 3 - Accuracy: 0.9313. Best epoch: 237
+Subject 5 - Overall Accuracy: 0.9070.
+    Class Accuracy left: 0.9891
+    Class Accuracy right: 0.8250
+Subject 6 Fold 0 - Accuracy: 0.8500. Best epoch: 352
+Subject 6 Fold 1 - Accuracy: 0.8438. Best epoch: 265
+Subject 6 Fold 2 - Accuracy: 0.8594. Best epoch: 162
+Subject 6 Fold 3 - Accuracy: 0.8656. Best epoch: 143
+Subject 6 - Overall Accuracy: 0.8547.
+    Class Accuracy left: 0.7547
+    Class Accuracy right: 0.9547
+Subject 7 Fold 0 - Accuracy: 0.7750. Best epoch: 484
+Subject 7 Fold 1 - Accuracy: 0.8281. Best epoch: 747
+Subject 7 Fold 2 - Accuracy: 0.7875. Best epoch: 153
+Subject 7 Fold 3 - Accuracy: 0.8281. Best epoch: 770
+Subject 7 - Overall Accuracy: 0.8047.
+    Class Accuracy left: 0.8984
+    Class Accuracy right: 0.7109
+Subject 8 Fold 0 - Accuracy: 0.9156. Best epoch: 404
+Subject 8 Fold 1 - Accuracy: 0.9375. Best epoch: 157
+Subject 8 Fold 2 - Accuracy: 0.9094. Best epoch: 566
+Subject 8 Fold 3 - Accuracy: 0.9281. Best epoch: 298
+Subject 8 - Overall Accuracy: 0.9227.
+    Class Accuracy left: 0.9156
+    Class Accuracy right: 0.9297
+Subject 9 Fold 0 - Accuracy: 0.8906. Best epoch: 171
+Subject 9 Fold 1 - Accuracy: 0.8719. Best epoch: 289
+Subject 9 Fold 2 - Accuracy: 0.8656. Best epoch: 132
+Subject 9 Fold 3 - Accuracy: 0.8656. Best epoch: 297
+Subject 9 - Overall Accuracy: 0.8734.
+    Class Accuracy left: 0.8578
+    Class Accuracy right: 0.8891
+Total Average Accuracy: 0.7969
+    Average Class Accuracy left: 0.8419
+    Average Class Accuracy right: 0.7518
+
+------------------------------------------------
+SAME SUBJECT EEGNet_Bob (2b)
+2025-09-10 03:47:30.056306
+BCI 2b
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+
+------------------------------------------------
+SAME SUBJECT EEGNet_Bob (2b, No ICA)
+2025-09-10 17:40:28.536318
+BCI 2b
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: False
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 32, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
