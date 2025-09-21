@@ -27,10 +27,11 @@ from sklearn.utils import class_weight
 import math
 import os
 
-figure_dir = "/Users/bobbeashel/Desktop/CITS4010/Project/figures/"
+#figure_dir = "/Users/bobbeashel/Desktop/CITS4010/Project/figures/"
+figure_dir = "/home/bob/Desktop/Project/EEG_MI_Classification/figures/"
 
-DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
-#DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
+#DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
+DATASET_LOCATION = "/home/bob/Desktop/Project/EEG_MI_Classification/data/"
 
 def savefig_unique(fig, filepath, fig_obj=True):
 
@@ -49,7 +50,8 @@ def savefig_unique(fig, filepath, fig_obj=True):
     if fig_obj:
         fig.savefig(unique_path)
     else:
-        fig.figure.savefig(unique_path)
+        #fig.figure.savefig(unique_path)
+        fig.savefig(unique_path)
 
     print(f"[INFO] Saved: {unique_path}")
 
@@ -139,6 +141,7 @@ def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
     plt.colorbar(label='Power')
     plt.tight_layout()
     savefig_unique(plt, "wavelet_transform.png")
+    plt.close()
 
     return X_train_converted, X_test_converted
 
@@ -166,6 +169,8 @@ def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     plt.tight_layout()
     plt.legend()
     savefig_unique(plt, "all_prob_distributions.png")
+    plt.close()
+
 
 def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
     ############################# xDAWN + RG Portion ##############################
@@ -199,6 +204,8 @@ def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
     plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
 
     savefig_unique(plt, "confusion_xdawnrg.png")
+    plt.close()
+
 
 def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
     def compute_stft(X,dataset):
@@ -260,6 +267,8 @@ def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
 
     plt.tight_layout()
     savefig_unique(plt, "stft.png")
+    plt.close()
+
 '''
 def plot_predicted_probs(probs, num_samples_to_plot):
     subset = probs[:num_samples_to_plot]
@@ -317,6 +326,8 @@ def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilit
     plt.xticks(rotation=45)
     plt.tight_layout()
     savefig_unique(plt, "predicted_probs.png")
+    plt.close()
+
 
 def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
 
@@ -353,6 +364,8 @@ def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
     plt.ylabel("Frequency")
 
     savefig_unique(plt, "top_confidence_distribution.png")
+    plt.close()
+
 
 def get_mne_dataset():
     kernels, chans, samples = 1, 60, 151
@@ -475,6 +488,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_before.png")
+        plt.close()
+
         #plt.show()  
 
     # Detect components correlated with EOG
@@ -487,6 +502,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_after.png") 
+        plt.close()
+
 
     # Now drop EOG before epochs
     raw.pick_types(eeg=True)
@@ -494,6 +511,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_overlay(raw, exclude=ica.exclude, picks='eeg', show=False)
         savefig_unique(plt, "ica_overlay.png")
+        plt.close()
+
 
     print(f"Components to remove: {ica.exclude}")
 
@@ -531,8 +550,13 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                     fig2 = raw.plot_psd(fmax=50, show=False)
                     fig2.suptitle("PSD After ICA")
 
+                    print("AAAA", type(fig1))
                     savefig_unique( fig1, "before_ica.png",  False)
+                    plt.close()
+
                     savefig_unique(  fig2, "after_ica.png",False)
+                    plt.close()
+
 
                     #fig1.show()
                     #fig2.show()
@@ -631,7 +655,11 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                         #fig1.show()
                         #fig2.show()
                         savefig_unique(fig1, "PSD_before_ica.png",  False)
+                        plt.close()
+
                         savefig_unique(fig2,"PSD_after_ica.png",  False)
+                        plt.close()
+
                 ####################################################################################
                 
 
@@ -704,6 +732,9 @@ def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None
     plt.tight_layout()
     plt.title(title)
     savefig_unique(plt,"epoch_with_event.png")
+    plt.close()
+
+     
 
 def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs, lr, l2):
     if input_format == "timeseries":
@@ -849,6 +880,9 @@ def plot_curves(history, title="Validation and Loss Curves"):
     plt.title(title)
     
     savefig_unique(plt, "accuracy_loss_curves.png")
+    plt.close()
+
+     
 
 def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix", cm=None):
     
@@ -864,6 +898,9 @@ def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix",
     plt.tight_layout()
     #plt.show()
     savefig_unique(plt, "confusion_matrix.png")
+    plt.close()
+
+     
 
 def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,logfile, sum_accuracies=0, gui_plots=True, fold_step=None):
     # load optimal model weights based on validation accuracy

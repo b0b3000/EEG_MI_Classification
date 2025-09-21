@@ -1,6 +1,4 @@
-import sys
-sys.path.append("/Users/bobbeashel/Desktop/CITS4010/ARL-EEGMODELS/arl-eegmodels-master")
-print(sys.path)
+
 import numpy
 
 print(numpy.version.version)

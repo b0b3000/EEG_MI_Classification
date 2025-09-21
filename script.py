@@ -3,85 +3,109 @@ import random
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import datetime
-
 import tensorflow
-print(tensorflow.__version__)
-# BIG 3
+
+gpus = tensorflow.config.list_physical_devices('GPU')
+for gpu in gpus:
+    tensorflow.config.experimental.set_memory_growth(gpu, True)
+
+# BIG 4
+title = "EEGNet_Bob no ICA and with augment"
 input_format = "timeseries"
-model_type = "EEGNet_Bob"
-dataset = "BCI 2a"
+model_type = "EEGNet"
+dataset = "BCI 2b"
 
-if dataset == "BCI 2a":
-    tmin, tmax = 0.5, 2.5 # seconds before and after stimulus we want to record  # From the paper describing dataset 2A
-    classes = 4
-    training_files_list = ["A01T", "A02T", "A03T","A04T", "A05T", "A06T", "A07T", "A08T", "A09T"]
-    #training_files_list = ["A01T", "A02T"]
-    testing_files_list = ["A01E", "A02E", "A03E", "A04E", "A05E", "A06E", "A07E", "A08E", "A09E"]
-    #testing_files_list = ["A01E", "A02E"]
-elif dataset == "BCI 2b":
-    training_files_list = [['B0101T','B0102T','B0103T'],['B0201T','B0202T','B0203T'],['B0301T','B0302T','B0303T'],['B0401T','B0402T','B0403T'],['B0501T','B0502T','B0503T'],['B0601T','B0602T','B0603T'],['B0701T','B0702T','B0703T'],['B0801T','B0802T','B0803T'],['B0901T','B0902T','B0903T']]
-    testing_files_list = [['B0104E','B0105E'],['B0204E','B0205E'],['B0304E','B0305E'],['B0404E','B0405E'],['B0504E','B0505E'],['B0604E','B0605E'],['B0704E','B0705E'],['B0804E','B0805E'],['B0904E','B0905E']]
-    tmin, tmax = 0, 3.996 
-    classes = 2
-else:
-    print("INVALID DATASET")
-    
-#PREPROCESSING
-bandpass = [4,40]
-baseline = None
-amplitude_magnification = 1000 #current best = 1000
-ica = True
+# PREPROCESSING
+bandpass = [4,40] # paper & best [4,40]
+baseline = None #paper and best None
+amplitude_magnification = 1000 #best = 1000
+ica = False # Paper = off
+augment = True #Best = true
+augment_chops = 5 # best = 5
+augment_probs= [0.5,0.5,0.3] #best = 0.5,0.5,0.3
 
-#Only relevant to STFT 
+# STFT 
 segment_len=128
 sample_overlap=64
 boundary=None
 padding=True
 
-#Only relevant to WAVELET
+# WAVELET
 n_freqs = 30
 
-#MODEL HYPERPARAMS
-dropoutRate = 0.4 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject
-kernLength = 32 #32 sugggested by paper
-F1 = 4 # 4, 8
-D = 4 # 2
-F2 = 16 # F1 * D suggested by paper
-dropoutType = 'Dropout' # Paper suggested Dropout
-stop_threshold = 150
-batch_size = 64
-epochs = 150
-lr = False #Learning rate scheduler yes or no
-l2 = 0.1 # none if off
+# MODEL
+dropoutRate = 0.4 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject. Best 0.4
+kernLength = 8 #32 sugggested by paper. Best 32
+F1 = 4 # 4, 8. Best 4
+D = 4 # 2. Best 4
+F2 = 16 # F1 * D suggested by paper. Best 16
+dropoutType = 'Dropout' # Paper suggested Dropout. Best dropout
+stop_threshold = 150 # 150 best
+batch_size = 64 #64 best
+epochs = 1000 # 1000 best
+lr = False #Learning rate scheduler yes or no. Paper = no, best = no
+l2 = 0.1 # none if off. Paper = None, best = 0.1
 
-augment = True
-augment_chops = 5
-augment_probs= [0.5,0.5,0.3] 
+# CONTROL
+gui=False 
+same_subject = False
+loops = 16
+folds=4
 
-gui=True
-
-#Same or cross subject
-same_subject = True
-if same_subject:
-    logfile = "samesubject_cv_log.txt"
-else:
-    logfile = "crosssubject_log.txt"
-
-loops = 10
 for i in range(loops):
+    if i>3:
+        ica = True
+        augment = True
+        l2=0.1
+        dataset = "BCI 2b"
+        model_type = "EEGNet_Bob"
+        title = "EEGNet_Bob 2b valid"
+        same_subject = False
+        stop_threshold=150
+    
+    else:
+        ica = True
+        augment = True
+        l2=0.1
+        dataset = "BCI 2a"
+        model_type = "EEGNet_Bob"
+        title = "EEGNet_Bob 2a valid"
+        same_subject = False
+        stop_threshold=150
 
-    # Non tunable definitions
+    if same_subject:
+        logfile = "samesubject_cv_log.txt"
+    else:
+        logfile = "crosssubject_log.txt"
+
+
+    if dataset == "BCI 2a":
+        tmin, tmax = 0.5, 2.5 # seconds before and after stimulus we want to record  # From the paper describing dataset 2A
+        classes = 4
+        training_files_list = [["A01T"], ["A02T"], ["A03T"],["A04T"],["A05T"], ["A06T"], ["A07T"], ["A08T"], ["A09T"]]
+        #training_files_list = ["A01T", "A02T"]
+        testing_files_list = [["A01E"], ["A02E"], ["A03E"],["A04E"],["A05E"], ["A06E"], ["A07E"], ["A08E"], ["A09E"]]
+        #testing_files_list = ["A01E", "A02E"]
+    elif dataset == "BCI 2b":
+        training_files_list = [['B0101T','B0102T','B0103T'],['B0201T','B0202T','B0203T'],['B0301T','B0302T','B0303T'],['B0401T','B0402T','B0403T'],['B0501T','B0502T','B0503T'],['B0601T','B0602T','B0603T'],['B0701T','B0702T','B0703T'],['B0801T','B0802T','B0803T'],['B0901T','B0902T','B0903T']]
+        testing_files_list = [['B0104E','B0105E'],['B0204E','B0205E'],['B0304E','B0305E'],['B0404E','B0405E'],['B0504E','B0505E'],['B0604E','B0605E'],['B0704E','B0705E'],['B0804E','B0805E'],['B0904E','B0905E']]
+        tmin, tmax = 0, 3.996 
+        classes = 2
+    else:
+        print("INVALID DATASET")
+    
+    # Non tunable per-run variables
     sum_accuracies = 0
-    sum_class_acc = np.zeros(4)
+    sum_class_acc = np.zeros(classes)
     all_subjects_cm = []
     subjects = len(training_files_list)
 
     with open(logfile, "a") as f:
         f.write("\n------------------------------------------------\n")
         if same_subject:
-            f.write(f"SAME SUBJECT ")
+            f.write(f"SAME SUBJECT {title}\n")
         else:
-            f.write("CROSS SUBJECT ")
+            f.write(f"CROSS SUBJECT {title}\n")
         f.write(f"{datetime.datetime.now()}\n")
         f.write(f"{dataset}\n")
         f.write(f"Input: {input_format}, Model: {model_type}\n")
@@ -101,20 +125,19 @@ for i in range(loops):
             f.write("Augmentation: None\n")
         f.write("------------------------------------------------\n")
 
-
     if same_subject:
 
         for i in (range(subjects)):
 
-            training_files = [training_files_list[i]]
-            test_files = [testing_files_list[i]]
+            training_files = training_files_list[i]
+            test_files = testing_files_list[i]
 
             if dataset=="BCI 2a":
                 X_train_raw, Y_train_raw, X_test_raw, Y_test_raw, chans, kernels, samples, names, sample_rate = util.get_bci_2a(training_files, test_files, bandpass = bandpass,tmin = tmin, tmax = tmax,mode = "gdf",amp_mag= amplitude_magnification, baseline=baseline, ica=ica, gui=gui)
             elif dataset=="BCI 2b":
                 X_train_raw, Y_train_raw, X_test_raw, Y_test_raw, chans, kernels, samples, names, sample_rate = util.get_bci_2b(training_files, test_files, bandpass = bandpass,tmin = tmin, tmax = tmax,mode = "gdf",amp_mag= amplitude_magnification, baseline=baseline, ica=ica, gui=gui)
 
-            skf = StratifiedKFold(n_splits=4, shuffle=True)
+            skf = StratifiedKFold(n_splits=folds, shuffle=True)
             fold_indices = []  # to store indices for each fold
 
             for _, test_index in skf.split(X_train_raw, Y_train_raw):
@@ -148,8 +171,8 @@ for i in range(loops):
                 subject_class_acc_sum = subject_class_acc_sum + class_acc
                 cm.append(fold_cm)
             
-            subject_acc = (sum(subject_acc_list)) / classes
-            subject_class_acc = subject_class_acc_sum / classes
+            subject_acc = (sum(subject_acc_list)) / folds
+            subject_class_acc = subject_class_acc_sum / folds
             cm = np.sum(cm, axis=0)
 
             sum_accuracies += subject_acc
@@ -174,8 +197,8 @@ for i in range(loops):
 
         for i in range(len(training_files_list)):
 
-            training_file = [training_files_list[i]]
-            test_file = [testing_files_list[i]]
+            training_file = training_files_list[i]
+            test_file = testing_files_list[i]
             
             if dataset=="BCI 2a":
                 X_train_raw, Y_train_raw, X_test_raw, Y_test_raw, chans, kernels, samples, names, sample_rate = util.get_bci_2a(training_file, test_file, bandpass = bandpass,tmin = tmin, tmax = tmax,mode = "gdf",amp_mag= amplitude_magnification, baseline=baseline, ica=ica, gui=gui)
@@ -219,9 +242,10 @@ for i in range(loops):
 
             fittedModelHistory = model.fit(X_train, y_train, batch_size = batch_size, epochs = epochs, verbose = 0, validation_data=(X_val, y_val),callbacks=callbacks)
             
-            _, acc, class_acc, _ = util.predict_and_visualise(X_test, y_test, model, fittedModelHistory, names, test_subject, logfile, sum_accuracies, gui, None)
+            _, acc, class_acc, cm = util.predict_and_visualise(X_test, y_test, model, fittedModelHistory, names, test_subject, logfile, sum_accuracies, gui, None)
             sum_accuracies += acc
             sum_class_acc = sum_class_acc + class_acc
+            all_subjects_cm.append(cm)
 
     avg_class_acc = sum_class_acc/subjects
     avg_acc = sum_accuracies/subjects
@@ -235,4 +259,3 @@ for i in range(loops):
                 f.write(f"    Average Class Accuracy {cls_name}: {avg_class_acc[cls_idx]:.4f}\n")
 
     util.plot_confusion_matrix(None, None, names, title=f"Aggregate Confusion Matrix of ALL subjects", cm=avg_cm)
-        
