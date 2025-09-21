@@ -712,3 +712,469 @@ Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 28, D: 3, F2: 16,
 Training -> Stop threshold: 600, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
 Augmentation: None
 ------------------------------------------------
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 11:33:09.451875
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.6007. Best epoch: 28
+Subject 2 - Accuracy: 0.2674. Best epoch: 42
+Subject 3 - Accuracy: 0.5417. Best epoch: 11
+Subject 4 - Accuracy: 0.4236. Best epoch: 16
+Subject 5 - Accuracy: 0.2708. Best epoch: 23
+Subject 6 - Accuracy: 0.2951. Best epoch: 73
+Subject 7 - Accuracy: 0.3264. Best epoch: 15
+Subject 8 - Accuracy: 0.5451. Best epoch: 13
+Subject 9 - Accuracy: 0.3958. Best epoch: 10
+Total Average Accuracy: 0.4074
+    Average Class Accuracy left: 0.5231
+    Average Class Accuracy right: 0.5139
+    Average Class Accuracy foot: 0.2870
+    Average Class Accuracy tongue: 0.3056
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 12:04:10.456645
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.4479. Best epoch: 16
+Subject 2 - Accuracy: 0.2188. Best epoch: 56
+Subject 3 - Accuracy: 0.5521. Best epoch: 30
+Subject 4 - Accuracy: 0.4028. Best epoch: 12
+Subject 5 - Accuracy: 0.2743. Best epoch: 15
+Subject 6 - Accuracy: 0.3264. Best epoch: 34
+Subject 7 - Accuracy: 0.2500. Best epoch: 0
+Subject 8 - Accuracy: 0.5694. Best epoch: 62
+Subject 9 - Accuracy: 0.5000. Best epoch: 7
+Total Average Accuracy: 0.3935
+    Average Class Accuracy left: 0.6173
+    Average Class Accuracy right: 0.4923
+    Average Class Accuracy foot: 0.2685
+    Average Class Accuracy tongue: 0.1960
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 12:34:13.434362
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.5556. Best epoch: 36
+Subject 2 - Accuracy: 0.2674. Best epoch: 8
+Subject 3 - Accuracy: 0.6493. Best epoch: 15
+Subject 4 - Accuracy: 0.3333. Best epoch: 14
+Subject 5 - Accuracy: 0.2639. Best epoch: 23
+Subject 6 - Accuracy: 0.3194. Best epoch: 26
+Subject 7 - Accuracy: 0.3507. Best epoch: 13
+Subject 8 - Accuracy: 0.5625. Best epoch: 19
+Subject 9 - Accuracy: 0.5174. Best epoch: 41
+Total Average Accuracy: 0.4244
+    Average Class Accuracy left: 0.6250
+    Average Class Accuracy right: 0.5586
+    Average Class Accuracy foot: 0.2747
+    Average Class Accuracy tongue: 0.2392
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 13:04:24.165197
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.5417. Best epoch: 57
+Subject 2 - Accuracy: 0.2812. Best epoch: 21
+Subject 3 - Accuracy: 0.6215. Best epoch: 81
+Subject 4 - Accuracy: 0.3542. Best epoch: 33
+Subject 5 - Accuracy: 0.2882. Best epoch: 80
+Subject 6 - Accuracy: 0.3507. Best epoch: 36
+Subject 7 - Accuracy: 0.3368. Best epoch: 13
+Subject 8 - Accuracy: 0.2500. Best epoch: 0
+Subject 9 - Accuracy: 0.5104. Best epoch: 25
+Total Average Accuracy: 0.3927
+    Average Class Accuracy left: 0.6343
+    Average Class Accuracy right: 0.4846
+    Average Class Accuracy foot: 0.2639
+    Average Class Accuracy tongue: 0.1883
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 13:36:28.643275
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.2847. Best epoch: 3
+Subject 2 - Accuracy: 0.2743. Best epoch: 52
+Subject 3 - Accuracy: 0.6458. Best epoch: 22
+Subject 4 - Accuracy: 0.4167. Best epoch: 41
+Subject 5 - Accuracy: 0.2847. Best epoch: 50
+Subject 6 - Accuracy: 0.2500. Best epoch: 1
+Subject 7 - Accuracy: 0.4375. Best epoch: 39
+Subject 8 - Accuracy: 0.4479. Best epoch: 11
+Subject 9 - Accuracy: 0.5312. Best epoch: 40
+Total Average Accuracy: 0.3970
+    Average Class Accuracy left: 0.7037
+    Average Class Accuracy right: 0.4275
+    Average Class Accuracy foot: 0.2238
+    Average Class Accuracy tongue: 0.2330
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 14:07:18.806777
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.6250. Best epoch: 31
+Subject 2 - Accuracy: 0.2431. Best epoch: 19
+Subject 3 - Accuracy: 0.6215. Best epoch: 21
+Subject 4 - Accuracy: 0.2951. Best epoch: 48
+Subject 5 - Accuracy: 0.2500. Best epoch: 0
+Subject 6 - Accuracy: 0.3472. Best epoch: 13
+Subject 7 - Accuracy: 0.4549. Best epoch: 78
+Subject 8 - Accuracy: 0.5382. Best epoch: 32
+Subject 9 - Accuracy: 0.2465. Best epoch: 1
+Total Average Accuracy: 0.4024
+    Average Class Accuracy left: 0.4120
+    Average Class Accuracy right: 0.7052
+    Average Class Accuracy foot: 0.2577
+    Average Class Accuracy tongue: 0.2346
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no L2
+2025-09-18 14:38:24.669459
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: None
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+Subject 1 - Accuracy: 0.5451. Best epoch: 24
+Subject 2 - Accuracy: 0.2708. Best epoch: 45
+Subject 3 - Accuracy: 0.5451. Best epoch: 24
+Subject 4 - Accuracy: 0.2500. Best epoch: 0
+Subject 5 - Accuracy: 0.2708. Best epoch: 18
+Subject 6 - Accuracy: 0.3299. Best epoch: 66
+Subject 7 - Accuracy: 0.3958. Best epoch: 47
+Subject 8 - Accuracy: 0.5139. Best epoch: 13
+Subject 9 - Accuracy: 0.4896. Best epoch: 37
+Total Average Accuracy: 0.4012
+    Average Class Accuracy left: 0.6543
+    Average Class Accuracy right: 0.4228
+    Average Class Accuracy foot: 0.2654
+    Average Class Accuracy tongue: 0.2623
+
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 12:57:41.350614
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.6458. Best epoch: 87
+Subject 2 - Accuracy: 0.2847. Best epoch: 94
+Subject 3 - Accuracy: 0.5556. Best epoch: 87
+Subject 4 - Accuracy: 0.3785. Best epoch: 87
+Subject 5 - Accuracy: 0.2708. Best epoch: 94
+Subject 6 - Accuracy: 0.3542. Best epoch: 85
+Subject 7 - Accuracy: 0.3993. Best epoch: 56
+Subject 8 - Accuracy: 0.5243. Best epoch: 48
+Subject 9 - Accuracy: 0.5868. Best epoch: 190
+Total Average Accuracy: 0.4444
+    Average Class Accuracy left: 0.5833
+    Average Class Accuracy right: 0.5463
+    Average Class Accuracy foot: 0.3318
+    Average Class Accuracy tongue: 0.3164
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 13:22:24.709919
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5764. Best epoch: 174
+Subject 2 - Accuracy: 0.2882. Best epoch: 80
+Subject 3 - Accuracy: 0.5764. Best epoch: 60
+Subject 4 - Accuracy: 0.3090. Best epoch: 127
+Subject 5 - Accuracy: 0.2674. Best epoch: 78
+Subject 6 - Accuracy: 0.2743. Best epoch: 78
+Subject 7 - Accuracy: 0.4688. Best epoch: 99
+Subject 8 - Accuracy: 0.5347. Best epoch: 51
+Subject 9 - Accuracy: 0.3438. Best epoch: 64
+Total Average Accuracy: 0.4043
+    Average Class Accuracy left: 0.4707
+    Average Class Accuracy right: 0.5586
+    Average Class Accuracy foot: 0.3997
+    Average Class Accuracy tongue: 0.1883
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 13:46:48.800306
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5868. Best epoch: 47
+Subject 2 - Accuracy: 0.3021. Best epoch: 135
+Subject 3 - Accuracy: 0.5833. Best epoch: 69
+Subject 4 - Accuracy: 0.4201. Best epoch: 76
+Subject 5 - Accuracy: 0.2743. Best epoch: 52
+Subject 6 - Accuracy: 0.3229. Best epoch: 107
+Subject 7 - Accuracy: 0.3160. Best epoch: 84
+Subject 8 - Accuracy: 0.5590. Best epoch: 101
+Subject 9 - Accuracy: 0.5556. Best epoch: 120
+Total Average Accuracy: 0.4356
+    Average Class Accuracy left: 0.5725
+    Average Class Accuracy right: 0.5494
+    Average Class Accuracy foot: 0.3750
+    Average Class Accuracy tongue: 0.2454
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 14:10:33.533591
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5382. Best epoch: 76
+Subject 2 - Accuracy: 0.2465. Best epoch: 89
+Subject 3 - Accuracy: 0.6354. Best epoch: 67
+Subject 4 - Accuracy: 0.2917. Best epoch: 100
+Subject 5 - Accuracy: 0.2917. Best epoch: 115
+Subject 6 - Accuracy: 0.3194. Best epoch: 83
+Subject 7 - Accuracy: 0.4028. Best epoch: 114
+Subject 8 - Accuracy: 0.4861. Best epoch: 91
+Subject 9 - Accuracy: 0.5417. Best epoch: 76
+Total Average Accuracy: 0.4171
+    Average Class Accuracy left: 0.4537
+    Average Class Accuracy right: 0.6420
+    Average Class Accuracy foot: 0.3812
+    Average Class Accuracy tongue: 0.1914
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 14:34:19.468055
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.6285. Best epoch: 53
+Subject 2 - Accuracy: 0.2882. Best epoch: 52
+Subject 3 - Accuracy: 0.6111. Best epoch: 82
+Subject 4 - Accuracy: 0.3021. Best epoch: 81
+Subject 5 - Accuracy: 0.2882. Best epoch: 90
+Subject 6 - Accuracy: 0.2535. Best epoch: 8
+Subject 7 - Accuracy: 0.4132. Best epoch: 59
+Subject 8 - Accuracy: 0.4514. Best epoch: 88
+Subject 9 - Accuracy: 0.3681. Best epoch: 11
+Total Average Accuracy: 0.4005
+    Average Class Accuracy left: 0.5910
+    Average Class Accuracy right: 0.5123
+    Average Class Accuracy foot: 0.2377
+    Average Class Accuracy tongue: 0.2608
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 14:55:41.462313
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5000. Best epoch: 148
+Subject 2 - Accuracy: 0.2743. Best epoch: 71
+Subject 3 - Accuracy: 0.6840. Best epoch: 71
+Subject 4 - Accuracy: 0.3160. Best epoch: 83
+Subject 5 - Accuracy: 0.2708. Best epoch: 76
+Subject 6 - Accuracy: 0.3194. Best epoch: 80
+Subject 7 - Accuracy: 0.4028. Best epoch: 75
+Subject 8 - Accuracy: 0.4340. Best epoch: 97
+Subject 9 - Accuracy: 0.5903. Best epoch: 49
+Total Average Accuracy: 0.4213
+    Average Class Accuracy left: 0.5278
+    Average Class Accuracy right: 0.4506
+    Average Class Accuracy foot: 0.4259
+    Average Class Accuracy tongue: 0.2809
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 15:19:21.062327
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5451. Best epoch: 167
+Subject 2 - Accuracy: 0.3090. Best epoch: 83
+Subject 3 - Accuracy: 0.5729. Best epoch: 45
+Subject 4 - Accuracy: 0.4028. Best epoch: 82
+Subject 5 - Accuracy: 0.2535. Best epoch: 54
+Subject 6 - Accuracy: 0.2812. Best epoch: 91
+Subject 7 - Accuracy: 0.4514. Best epoch: 159
+Subject 8 - Accuracy: 0.5417. Best epoch: 114
+Subject 9 - Accuracy: 0.5486. Best epoch: 80
+Total Average Accuracy: 0.4340
+    Average Class Accuracy left: 0.4676
+    Average Class Accuracy right: 0.4769
+    Average Class Accuracy foot: 0.4846
+    Average Class Accuracy tongue: 0.3071
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a with no augment
+2025-09-20 15:43:37.551856
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation: None
+------------------------------------------------
+Subject 1 - Accuracy: 0.5243. Best epoch: 75
+Subject 2 - Accuracy: 0.2951. Best epoch: 207
+Subject 3 - Accuracy: 0.6319. Best epoch: 62
+Subject 4 - Accuracy: 0.3299. Best epoch: 64
+Subject 5 - Accuracy: 0.2743. Best epoch: 61
+Subject 6 - Accuracy: 0.3507. Best epoch: 68
+Subject 7 - Accuracy: 0.3924. Best epoch: 84
+Subject 8 - Accuracy: 0.4826. Best epoch: 117
+Subject 9 - Accuracy: 0.4375. Best epoch: 69
+Total Average Accuracy: 0.4132
+    Average Class Accuracy left: 0.5123
+    Average Class Accuracy right: 0.5293
+    Average Class Accuracy foot: 0.3364
+    Average Class Accuracy tongue: 0.2747
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2b with no augment
+2025-09-20 16:07:16.569142
+BCI 2b
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0-3.996
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.25, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
+
+------------------------------------------------
+CROSS SUBJECT EEGNet_Bob 2a valid
+2025-09-21 21:43:40.562751
+BCI 2a
+Input: timeseries, Model: EEGNet_Bob
+Time Window: 0.5-2.5
+Bandpass: [4, 40], ICA: True
+Baseline: None, Amplitude Magnification: 1000
+STFT -> Segment Length: 128, Overlap: 64, Boundary: None, Padding: True
+Wavelet -> n_freqs: 30
+Model Hyperparams -> Dropout Rate: 0.4, Kernel Length: 8, F1: 4, D: 4, F2: 16, Dropout Type: Dropout
+Training -> Stop threshold: 150, Epochs: 1000, Batch size: 64, Learning Rate Schedule: False, L2 regulariser: 0.1
+Augmentation -> 5 chops. Timeshift probs: 0.5, Noise addition prob: 0.5, Channel Dropout prob: 0.3
+------------------------------------------------
