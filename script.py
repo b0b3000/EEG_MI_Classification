@@ -35,7 +35,7 @@ n_freqs = 30
 
 # MODEL
 dropoutRate = 0.4 #0.5 suggested by paper. 0.25 suggeted suggested for cross subject. Best 0.4
-kernLength = 8 #32 sugggested by paper. Best 32
+kernLength = 32 #32 sugggested by paper. Best 32
 F1 = 4 # 4, 8. Best 4
 D = 4 # 2. Best 4
 F2 = 16 # F1 * D suggested by paper. Best 16
@@ -49,27 +49,44 @@ l2 = 0.1 # none if off. Paper = None, best = 0.1
 # CONTROL
 gui=False 
 same_subject = False
-loops = 16
+loops = 14
 folds=4
 
 for i in range(loops):
-    if i>3:
-        ica = True
-        augment = True
-        l2=0.1
+    if i>8:
+        ica = False
+        augment = False
+        l2=None
+        F1 = 4 # 4, 8. Best 4
+        D = 2 # 2. Best 4
+        F2 = 8 # F1 * D suggested by paper. Best 16
         dataset = "BCI 2b"
-        model_type = "EEGNet_Bob"
-        title = "EEGNet_Bob 2b valid"
+        model_type = "EEGNet"
+        title = "EEGNet 4,2 2b"
         same_subject = False
         stop_threshold=150
-    
-    else:
-        ica = True
-        augment = True
-        l2=0.1
+    elif i>4:
+        ica = False
+        augment = False
+        l2=None
+        F1 = 8 # 4, 8. Best 4
+        D = 2 # 2. Best 4
+        F2 = 16 # F1 * D suggested by paper. Best 16
         dataset = "BCI 2a"
-        model_type = "EEGNet_Bob"
-        title = "EEGNet_Bob 2a valid"
+        model_type = "EEGNet"
+        title = "EEGNet 8,2 2a"
+        same_subject = False
+        stop_threshold=150
+    else:
+        ica = False
+        augment = False
+        l2=None
+        F1 = 8 # 4, 8. Best 4
+        D = 2 # 2. Best 4
+        F2 = 16 # F1 * D suggested by paper. Best 16
+        dataset = "BCI 2b"
+        model_type = "EEGNet"
+        title = "EEGNet 8,2 2b"
         same_subject = False
         stop_threshold=150
 
