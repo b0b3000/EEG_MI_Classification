@@ -159,7 +159,7 @@ def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     plt.figure(figsize=(12, 5))
     
     # Create both stripplot and boxplot on the same axis
-    sns.stripplot(x=max_probs, orient='h', jitter=0.2, alpha=0.5, color='dodgerblue', label='Individual Samples')
+    #sns.stripplot(x=max_probs, orient='h', jitter=0.2, alpha=0.5, color='dodgerblue', label='Individual Samples')
     sns.boxplot(x=max_probs, orient='h', color='lightgray', width=0.3, fliersize=0, linewidth=1)
 
     plt.xlabel('Top-1 Predicted Probability')
@@ -909,6 +909,7 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
     #predict
     probs = model.predict(X_test)
     preds = probs.argmax(axis = -1)
+    y_true = Y_test.argmax(axis=-1)
     acc = np.mean(preds == Y_test.argmax(axis=-1))
     sum_accuracies += acc
     best_epoch = fittedModelHistory.history['val_loss'].index(min(fittedModelHistory.history['val_loss']))
@@ -953,4 +954,35 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
         # plot all selected probs
         plot_all_predicted_probabilities(probs, title = f"Subject {i+1} Fold {fold_step}")
 
-    return sum_accuracies, acc, class_acc, cm
+    return sum_accuracies, acc, class_acc, cm, y_true, preds, probs, fittedModelHistory.history
+
+def average_histories(histories):
+    """
+    Takes a list of Keras history.history dicts and returns
+    a single averaged history dict (element-wise mean across epochs).
+    """
+    # Determine max length
+    max_epochs = max(len(h['val_loss']) for h in histories)
+    keys = histories[0].keys()
+    averaged = {}
+
+    for key in keys:
+        # Initialise array (num_histories x max_epochs)
+        arr = np.zeros((len(histories), max_epochs))
+        for i, h in enumerate(histories):
+            if key in h:
+                arr[i, :len(h[key])] = h[key]
+        averaged[key] = arr.mean(axis=0)
+
+    return averaged
+
+def aggregate_plot(all_true, all_preds, all_probs, all_histories):
+    all_true_flat = np.concatenate(all_true)
+    all_preds_flat = np.concatenate(all_preds)
+    all_probs_flat = np.concatenate(all_probs)
+    avg_hist = average_histories(all_histories)
+
+    plot_all_predicted_probabilities(all_probs_flat, title="Aggregate Prediction Confidence")
+
+    plot_curves(avg_hist, title="Aggregate Learning Curves")
+

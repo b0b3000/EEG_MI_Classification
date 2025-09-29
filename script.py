@@ -10,16 +10,16 @@ for gpu in gpus:
     tensorflow.config.experimental.set_memory_growth(gpu, True)
 
 # BIG 4
-title = "EEGNet_Bob no ICA and with augment"
+title = "agg figure generation"
 input_format = "timeseries"
-model_type = "EEGNet"
-dataset = "BCI 2b"
+model_type = "EEGNet_Bob"
+dataset = "BCI 2a"
 
 # PREPROCESSING
 bandpass = [4,40] # paper & best [4,40]
 baseline = None #paper and best None
 amplitude_magnification = 1000 #best = 1000
-ica = False # Paper = off
+ica = True # Paper = off
 augment = True #Best = true
 augment_chops = 5 # best = 5
 augment_probs= [0.5,0.5,0.3] #best = 0.5,0.5,0.3
@@ -48,47 +48,27 @@ l2 = 0.1 # none if off. Paper = None, best = 0.1
 
 # CONTROL
 gui=False 
-same_subject = False
-loops = 14
+same_subject = True
+loops = 4
 folds=4
 
 for i in range(loops):
-    if i>8:
-        ica = False
-        augment = False
-        l2=None
-        F1 = 4 # 4, 8. Best 4
-        D = 2 # 2. Best 4
-        F2 = 8 # F1 * D suggested by paper. Best 16
-        dataset = "BCI 2b"
-        model_type = "EEGNet"
-        title = "EEGNet 4,2 2b"
-        same_subject = False
-        stop_threshold=150
-    elif i>4:
-        ica = False
-        augment = False
-        l2=None
-        F1 = 8 # 4, 8. Best 4
-        D = 2 # 2. Best 4
-        F2 = 16 # F1 * D suggested by paper. Best 16
+    if i ==2:
+        dataset="BCI 2a"
+        same_subject=True 
+        ica=True
+    if i == 3:
         dataset = "BCI 2a"
-        model_type = "EEGNet"
-        title = "EEGNet 8,2 2a"
-        same_subject = False
-        stop_threshold=150
-    else:
-        ica = False
-        augment = False
-        l2=None
-        F1 = 8 # 4, 8. Best 4
-        D = 2 # 2. Best 4
-        F2 = 16 # F1 * D suggested by paper. Best 16
+        same_subject=False
+        ica=True
+    if i == 0:
         dataset = "BCI 2b"
-        model_type = "EEGNet"
-        title = "EEGNet 8,2 2b"
-        same_subject = False
-        stop_threshold=150
+        same_subject=True
+        ica=False
+    if i == 1:
+        dataset = "BCI 2b"
+        same_subject=False
+        ica=False
 
     if same_subject:
         logfile = "samesubject_cv_log.txt"
@@ -114,8 +94,15 @@ for i in range(loops):
     # Non tunable per-run variables
     sum_accuracies = 0
     sum_class_acc = np.zeros(classes)
-    all_subjects_cm = []
+
     subjects = len(training_files_list)
+
+    #for aggregate plots
+    all_true = []
+    all_preds = []
+    all_probs = []
+    all_histories = []
+    all_subjects_cm = []
 
     with open(logfile, "a") as f:
         f.write("\n------------------------------------------------\n")
@@ -182,11 +169,16 @@ for i in range(loops):
                 
                 fittedModelHistory = model.fit(X_train, Y_train, batch_size = batch_size, epochs = epochs, verbose = 0, validation_data=(X_validate, Y_validate),callbacks=callbacks)
                 
-                _, acc, class_acc, fold_cm = util.predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, logfile, sum_accuracies, gui, fold_step)
+                _, acc, class_acc, fold_cm, y_true, preds, probs, hist = util.predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, logfile, sum_accuracies, gui, fold_step)
 
                 subject_acc_list.append(acc)
                 subject_class_acc_sum = subject_class_acc_sum + class_acc
                 cm.append(fold_cm)
+
+                all_true.append(y_true)
+                all_preds.append(preds)
+                all_probs.append(probs)
+                all_histories.append(hist)
             
             subject_acc = (sum(subject_acc_list)) / folds
             subject_class_acc = subject_class_acc_sum / folds
@@ -259,10 +251,15 @@ for i in range(loops):
 
             fittedModelHistory = model.fit(X_train, y_train, batch_size = batch_size, epochs = epochs, verbose = 0, validation_data=(X_val, y_val),callbacks=callbacks)
             
-            _, acc, class_acc, cm = util.predict_and_visualise(X_test, y_test, model, fittedModelHistory, names, test_subject, logfile, sum_accuracies, gui, None)
+            _, acc, class_acc, cm, y_true, preds, probs, hist = util.predict_and_visualise(X_test, y_test, model, fittedModelHistory, names, test_subject, logfile, sum_accuracies, gui, None)
             sum_accuracies += acc
             sum_class_acc = sum_class_acc + class_acc
             all_subjects_cm.append(cm)
+
+            all_true.append(y_true)
+            all_preds.append(preds)
+            all_probs.append(probs)
+            all_histories.append(hist)
 
     avg_class_acc = sum_class_acc/subjects
     avg_acc = sum_accuracies/subjects
@@ -276,3 +273,5 @@ for i in range(loops):
                 f.write(f"    Average Class Accuracy {cls_name}: {avg_class_acc[cls_idx]:.4f}\n")
 
     util.plot_confusion_matrix(None, None, names, title=f"Aggregate Confusion Matrix of ALL subjects", cm=avg_cm)
+
+    util.aggregate_plot(all_true, all_preds, all_probs, all_histories)
