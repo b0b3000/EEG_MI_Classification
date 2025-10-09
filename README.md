@@ -5,7 +5,9 @@
 End-to-end EEG motor imagery classification system built for the **BCI Competition IV 2a/2b** datasets.  
 Implements complete preprocessing, model training, evaluation, and visualization workflows for brain–computer interface (BCI) research.  
 Supports the **EEGNet**, **ShallowConvNet**, **DeepConvNet**, and newly proposed **modified EEGNet** models.
-
+---
+## Repo Structure
+The `ubuntu` branch and `main` branch contain very similar code, with `ubuntu` optimised for running on Ubuntu/Linux systems.
 ---
 
 ## Pipeline Summary
