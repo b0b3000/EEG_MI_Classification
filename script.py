@@ -3,7 +3,6 @@ import random
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import datetime
-import tensorflow
 
 # Title of the trial for reference in logs
 title = "EEGNet_Modified"

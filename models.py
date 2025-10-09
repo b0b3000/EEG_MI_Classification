@@ -11,8 +11,6 @@ from tensorflow.keras.constraints import max_norm
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers 
 
-sys.path.append("/Users/bobbeashel/Desktop/CITS4010/ARL-EEGMODELS/arl-eegmodels-master")
-
 """
 Some of the below Keras implementations of existing EEG-MI classification models have been inspired/adopted from the GitHub repo:
 "ARL_EEGModels - A collection of Convolutional Neural Network models for EEG Signal Processing and Classification, using Keras and Tensorflow.
