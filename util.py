@@ -4,12 +4,11 @@ import numpy as np
 import mne
 from mne import io
 from mne.datasets import sample
-from models import EEGNet, EEGNet_Bob, ShallowConvNet, DeepConvNet, EEGNet_TF, EEGNet_Wavelet, EEGNet_Wavelet2, EEGNet_Wavelet3
+from models import EEGNet, EEGNet_Modified, ShallowConvNet, DeepConvNet
 from tensorflow.keras import utils as np_utils
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras import backend as K
 from sklearn.metrics import confusion_matrix
-from tensorflow.keras.models import load_model
 from pyriemann.estimation import XdawnCovariances
 from pyriemann.tangentspace import TangentSpace
 from sklearn.pipeline import make_pipeline
@@ -17,29 +16,26 @@ from sklearn.linear_model import LogisticRegression
 import matplotlib
 matplotlib.use("Agg") 
 import matplotlib.pyplot as plt
-from collections import Counter
 import seaborn as sns
 from scipy.signal import stft
-import pandas as pd
 import pywt
-from pyriemann.estimation import Covariances
-from sklearn.utils import class_weight
-import math
 import os
 
-figure_dir = "/Users/bobbeashel/Desktop/CITS4010/Project/figures/"
-
+FIGURE_DIR = "/Users/bobbeashel/Desktop/CITS4010/Project/figures/"
 DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/"
-#DATASET_LOCATION = "/Users/bobbeashel/Desktop/CITS4010/Project/data/001-2014"
 
 def savefig_unique(fig, filepath, fig_obj=True):
-
+    '''
+    This function ensures that all generated figures are:
+    1) saved as image files in the figure directory
+    2) saved with a unique name, so no figures are overwritten
+    '''
     counter = 0
     name, ext = filepath.rsplit(".", 1)
-    name = figure_dir + name
+    name = FIGURE_DIR + name
     
     #first attempt
-    unique_path = figure_dir + filepath
+    unique_path = FIGURE_DIR + filepath
 
     #keep adding a number until free -> so no overwrite
     while os.path.exists(unique_path):
@@ -53,22 +49,29 @@ def savefig_unique(fig, filepath, fig_obj=True):
 
     print(f"[INFO] Saved: {unique_path}")
 
-def time_shift(x, max_shift=20):
-    shift = np.random.randint(-max_shift, max_shift+1)
-    return np.roll(x, shift, axis=1)  # shift along samples axis
-
-def add_gaussian_noise(x, sigma=1e-6):
-    noise = np.random.normal(0, sigma, size=x.shape).astype(x.dtype)
-    return x + noise
-
-def channel_dropout(x, k=1):
-    x = x.copy()
-    chans = x.shape[0]
-    drop = np.random.choice(chans, size=k, replace=False)
-    x[drop, :, 0] = 0.0  # zero out selected channels
-    return x
-
 def augment_trial(x, timeshift_prob, noise_prob, chan_dropout_prob):
+    """
+    Apply random augmentation transformations to a single EEG trial.
+
+    This function probabilistically applies up to three augmentations:
+    1. Time-shifting along the sample axis.
+    2. Gaussian noise injection.
+    3. Random channel dropout (zeroing selected channels)."""
+    def time_shift(x, max_shift=20):
+        shift = np.random.randint(-max_shift, max_shift+1)
+        return np.roll(x, shift, axis=1)  # shift along samples axis
+
+    def add_gaussian_noise(x, sigma=1e-6):
+        noise = np.random.normal(0, sigma, size=x.shape).astype(x.dtype)
+        return x + noise
+
+    def channel_dropout(x, k=1):
+        x = x.copy()
+        chans = x.shape[0]
+        drop = np.random.choice(chans, size=k, replace=False)
+        x[drop, :, 0] = 0.0  # zero out selected channels
+        return x
+    
     if np.random.rand() < timeshift_prob:
         x = time_shift(x, 20) # max shift = 20
     if np.random.rand() < noise_prob:
@@ -77,7 +80,14 @@ def augment_trial(x, timeshift_prob, noise_prob, chan_dropout_prob):
         x = channel_dropout(x, 2) # dropout 2 channels randomly
     return x
 
+#This function applies the augmentation step in pre-processing. It draws on augment_trial.
 def augment(X_train, Y_train, n_segments, timeshift_prob=0.5, noise_prob=0.5, chan_dropout_prob=0.3):
+    '''For each original trial, this function:
+    - Divides the trial into n_segments equal length temporal chunks.
+    - For each segment, samples a random trial from the same class.
+    - Replaces the corresponding segment with an augmented version
+      (via time shift, noise, and/or dropout).
+    - Appends the resulting recombined trial to the training set.'''
     n_samples = X_train.shape[2]
     
     segment_length = n_samples // n_segments
@@ -107,11 +117,30 @@ def augment(X_train, Y_train, n_segments, timeshift_prob=0.5, noise_prob=0.5, ch
 
     return augmented_X, augmented_Y
 
+def visualise_sample_wavelet(samples_per_trial, freqs, X_train_converted, sample_rate):
+    '''
+    This function is for visualising a single channel of a single trial
+    after wavelet transform, for a visual comparison
+    '''
+    times = np.arange(samples_per_trial) / sample_rate #500/250 = 2
+    plt.figure(figsize=(10, 6))
+    plt.contourf(times, freqs, X_train_converted[0][0], levels=100, cmap='viridis')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    plt.title('Time-Frequency Representation (Wavelet Transform) Trial 1 Channel 1')
+    plt.colorbar(label='Power')
+    plt.ylim(0,60)
+    plt.tight_layout()
+    savefig_unique(plt, "wavelet_transform.png")
+
+#Converts inputted signal arrays into wavelet spectographs
 def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
     samples_per_trial = X_train.shape[2]
     fmin = 2
     fmax = sample_rate/2
     wavelet = "cmor3-3"
+
+    plot_single_channel(X_train[0,0], sample_rate, "training", "before_wavelet.png")
 
     freqs = np.linspace(fmin, fmax, num_frequencies)
     scales = pywt.scale2frequency(wavelet, 1.0) * sample_rate / freqs #scales are analogous to frequency, but not exactly the same. Used for wavelet
@@ -121,27 +150,17 @@ def convert_wavelet(X_train, X_test, sample_rate, num_frequencies):
         converted = np.zeros((X.shape[0], X.shape[1], num_frequencies, X.shape[2])) # num trials, num_channels, num frequencies, num samples
         for i in range(X_shape[0]):
             for j in range(X_shape[1]):
-                    coef, _ = pywt.cwt(X[i][j], scales, wavelet, sampling_period=1/sample_rate)
-                    power = np.abs(coef) ** 2
-                    converted[i][j] = power
+                coef, _ = pywt.cwt(X[i][j], scales, wavelet, sampling_period=1/sample_rate)
+                power = np.abs(coef) ** 2
+                converted[i][j] = power
         return converted
 
     X_train_converted = conversion_helper(X_train)
     X_test_converted = conversion_helper(X_test)
 
-    # TEMP vvvv
-    times = np.arange(samples_per_trial) / sample_rate #500/250 = 2
-    plt.figure(figsize=(10, 6))
-    plt.contourf(times, freqs, X_train_converted[0][0], levels=100, cmap='viridis')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Frequency (Hz)')
-    plt.title('Time-Frequency Representation (Wavelet Transform)')
-    plt.colorbar(label='Power')
-    plt.tight_layout()
-    savefig_unique(plt, "wavelet_transform.png")
+    visualise_sample_wavelet(samples_per_trial, freqs, X_train_converted, sample_rate)
 
     return X_train_converted, X_test_converted
-
 
 def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     """
@@ -149,14 +168,14 @@ def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     including both individual dots (stripplot) and summary (boxplot).
     
     Args:
-        probs: np.ndarray of shape (n_samples, n_classes)
+        probs: array of shape (n_samples, n_classes)
     """
     max_probs = probs.max(axis=1)  # get top-1 probability for each sample
 
     plt.figure(figsize=(12, 5))
     
     # Create both stripplot and boxplot on the same axis
-    sns.stripplot(x=max_probs, orient='h', jitter=0.2, alpha=0.5, color='dodgerblue', label='Individual Samples')
+    sns.stripplot(x=max_probs, orient='h', jitter=0.2, alpha=0.5, color='blue', label='Individual Samples')
     sns.boxplot(x=max_probs, orient='h', color='lightgray', width=0.3, fliersize=0, linewidth=1)
 
     plt.xlabel('Top-1 Predicted Probability')
@@ -167,41 +186,22 @@ def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     plt.legend()
     savefig_unique(plt, "all_prob_distributions.png")
 
-def xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names):
-    ############################# xDAWN + RG Portion ##############################
+# Plots the first trial and channel for visualisation
+def plot_single_channel(x, sample_rate, dataset, title):
+    t = np.arange(len(x)) / sample_rate  # time axis in seconds
+    print('ABCDE ', x.shape)
+    plt.figure(figsize=(10, 4))
+    plt.plot(t, x, color="b")
+    plt.title(f"Raw Timeseries (Channel 0, Trial 0) - {dataset}")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+    savefig_unique(plt, title)
 
-    # code is taken from PyRiemann's ERP sample script, which is decoding in 
-    # the tangent space with a logistic regression
-
-    n_components = 2  # pick some components
-
-    # set up sklearn pipeline
-    clf = make_pipeline(XdawnCovariances(n_components),
-                        TangentSpace(metric='riemann'),
-                        LogisticRegression())
-    
-    preds_rg     = np.zeros(len(Y_test))
-
-    # reshape back to (trials, channels, samples)
-    X_train_reshaped      = X_train.reshape(X_train.shape[0], chans, samples)
-    X_test_reshaped       = X_test.reshape(X_test.shape[0], chans, samples)
-
-    # train a classifier with xDAWN spatial filtering + Riemannian Geometry (RG)
-    # labels need to be back in single-column format
-    clf.fit(X_train_reshaped, Y_train.argmax(axis = -1))
-    preds_rg     = clf.predict(X_test_reshaped)
-
-    # Printing the results
-    acc2         = np.mean(preds_rg == Y_test.argmax(axis = -1))
-    print("Classification accuracy xDAWN + RG: %f " % (acc2))
-
-    plt.figure(1)
-    plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
-
-    savefig_unique(plt, "confusion_xdawnrg.png")
-
+#Converts inputted signal arrays into STFT spectographs
 def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
     def compute_stft(X,dataset):
+        plot_single_channel(X[0,0], sample_rate, dataset, "before_stft.png")
         trial_count, channel_count, samples_per_trial = X.shape
 
         freq_bins_centers, time_window_centers, sample_stft = stft(X[0, 0], fs=sample_rate, nperseg=segment_len, noverlap=sample_overlap, boundary=boundary, padded=padding)
@@ -230,68 +230,54 @@ def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32
     return X_train_tf, X_test_tf, freq_bins_centers, time_window_centers
 
 def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
+    '''
+    This function is for visualising a single channel of a single trial
+    after wavelet transform, for a visual comparison
+    '''
     sample_stft = np.abs(sample_stft)  
     print("Each sample + channel has", len(freqs), "frequency bins with", len(times), "windows each.")
 
-    fig, axs = plt.subplots(1, 2, figsize=(16, 4))
+    plt.figure(figsize=(12, 5))
+    pcm = plt.pcolormesh(times, freqs, sample_stft, shading='nearest') #gourad
+    plt.ylabel('Frequency (Hz)')
+    plt.xlabel('Time (s)')
+    plt.title('STFT Magnitude — Trial 1, Channel 1 ' + dataset)
 
-    # --- Left subplot: STFT spectrogram ---
-    pcm = axs[0].pcolormesh(times, freqs, sample_stft, shading='gouraud')
-    axs[0].set_ylabel('Frequency (Hz)')
-    axs[0].set_xlabel('Time (s)')
-    axs[0].set_title('STFT Magnitude — Trial 0, Channel 0 ' + dataset)
-
-    # Vertical time grid
+    # time grid
     for t in times:
-        axs[0].axvline(x=t, color='gray', linestyle='--', linewidth=0.3)
-
-    # Horizontal frequency grid
+        plt.axvline(x=t, color='gray', linestyle='--', linewidth=0.3)
+    # frequency grid
     for f in freqs:
-        axs[0].axhline(y=f, color='gray', linestyle='--', linewidth=0.3)
+        plt.axhline(y=f, color='gray', linestyle='--', linewidth=0.3)
+    
+    plt.ylim(0, 60)
 
     # Add colorbar
-    fig.colorbar(pcm, ax=axs[0], label='Magnitude')
-
-    # --- Right subplot: Frequency profile at a single time window ---
-    axs[1].bar(freqs, sample_stft[:, 1], align='center', color='skyblue')
-    axs[1].set_xlabel('Frequency (Hz)')
-    axs[1].set_ylabel('Magnitude')
-    axs[1].set_title(f'STFT at {times[1]:.2f}s (Trial 0 Channel 0) '+ dataset)
-
+    plt.colorbar(pcm, label='Magnitude')
     plt.tight_layout()
     savefig_unique(plt, "stft.png")
-'''
-def plot_predicted_probs(probs, num_samples_to_plot):
-    subset = probs[:num_samples_to_plot]
-
-    labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
-    classes = [f'Class {i}' for i in range(probs.shape[1])]
-
-    bottom = np.zeros(num_samples_to_plot)
-
-    plt.figure(figsize=(12, 6))
-    for i in range(probs.shape[1]):
-        plt.bar(labels, subset[:, i], bottom=bottom, label=classes[i])
-        bottom += subset[:, i]
-
-    plt.ylabel('Probability')
-    plt.title(f'Class Probabilities (First {num_samples_to_plot} Samples)')
-    plt.legend()
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()'''
 
 def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilities"):
+    '''
+    Visualises class probability distributions for a subset of prediction samples as stacked bar charts.
+
+    Each bar represents one sample, subdivided into colored segments corresponding to class probabilities.
+    The colors are ranked by probability magnitude (red = most likely, blue = 2nd, green = 3rd, yellow = 4th).
+    Probabilities for each sample are sorted in descending order before plotting.
+
+    '''
     subset = probs[:num_samples_to_plot]
 
     labels = [f'Sample {i}' for i in range(num_samples_to_plot)]
     classes = [f'Class {i}' for i in range(probs.shape[1])]
-
-    colors = ["red", "blue", "green", "yellow"]  # rank-based colors
+    
+    # rank-based colors. Red will always represent the highest probability, and so on.
+    colors = ["red", "blue", "green", "yellow"]  
 
     plt.figure(figsize=(12, 6))
 
     for j in range(num_samples_to_plot):
+
         # Sort probabilities for this sample in descending order
         sorted_indices = np.argsort(subset[j])[::-1]
         sorted_probs = subset[j][sorted_indices]
@@ -305,7 +291,9 @@ def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilit
 
     plt.ylabel('Probability')
     plt.title(f'{title} (First {num_samples_to_plot} Samples)')
+
     # Legend should show "Most likely", "2nd", etc.
+    # the same order remains
     from matplotlib.patches import Patch
     legend_elements = [
         Patch(facecolor="red", label="Most likely"),
@@ -321,7 +309,7 @@ def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilit
 def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
 
     """
-    Plots a strip plot (dot plot) of Top1/Top2 confidence ratios for all samples, capped at 3.
+    Plots a strip plot of Top1/Top2 confidence ratios for all samples, capped at 5.
     
     Parameters:
     - probs: 2D numpy array of shape (num_samples, num_classes)
@@ -340,7 +328,6 @@ def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
     # Seaborn style
     sns.set(style="whitegrid")
 
-    # Plot
     plt.figure(figsize=(10, 5))
     # Highlight region from 1 to k
     plt.axvspan(1, k, color='red', alpha=0.2, label=f'Uncertain Predictions Region (Confidence < {k})')
@@ -354,104 +341,49 @@ def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
 
     savefig_unique(plt, "top_confidence_distribution.png")
 
-def get_mne_dataset():
-    kernels, chans, samples = 1, 60, 151
-    names = ['audio left', 'audio right', 'vis left', 'vis right']
-    tmin, tmax = -0., 1
-
-    # while the default tensorflow ordering is 'channels_last' we set it here
-    # to be explicit in case if the user has changed the default ordering
-    K.set_image_data_format('channels_last')
-
-    ##################### Read the data ######################
-
-    data_path = sample.data_path()
-
-    # Set parameters and read data
-    raw_fname = str(data_path) + '/MEG/sample/sample_audvis_filt-0-40_raw.fif'
-    event_fname = str(data_path) + '/MEG/sample/sample_audvis_filt-0-40_raw-eve.fif'
-    
-    event_id = dict(aud_l=1, aud_r=2, vis_l=3, vis_r=4)
-
-    # Setup for reading the raw data
-    raw = io.Raw(raw_fname, preload=True, verbose=False)
-    events = mne.read_events(event_fname)
-
-    ##################### Preprocess the data ######################
-
-    raw.filter(2, None, method='iir')  # replace baselining with high-pass
-
-    raw.info['bads'] = ['MEG 2443']  # set bad channels
-
-    picks = mne.pick_types(raw.info, meg=False, eeg=True, stim=False, eog=False, exclude='bads')
-
-    ##################### Epoch, split and reshape the data ######################
-
-    epochs = mne.Epochs(raw, events, event_id, tmin, tmax, proj=False, picks=picks, baseline=None, preload=True, verbose=False)
-    labels = epochs.events[:, -1] 
-    labels = np_utils.to_categorical(labels-1) # -1 Because values start at 1 rather than 0
-
-    # scale due to scaling sensitivity in deep learning
-    X = epochs.get_data() * 1000 
-
-    return(X, labels, chans, kernels, samples, names)
 def exponential_moving_standardize(train_segments, test_segments, decay=0.999, init_block_size=1000):
-    """
-    Performs electrode-wise exponential moving standardization on EEG data.
-    
-    Parameters
-    ----------
-    train_segments : np.ndarray
-        Shape: (n_trials, n_channels, n_samples)
-    test_segments : np.ndarray
-        Shape: (n_trials, n_channels, n_samples)
-    decay : float
-        EMA decay factor (default: 0.999)
-    init_block_size : int
-        Number of initial samples to use for computing starting mean and variance
-        from the training set (per channel).
-    
-    Returns
-    -------
-    standardized_train, standardized_test : np.ndarray
-        Standardized versions of train_segments and test_segments.
-    """
-    
-    # Concatenate trials into continuous data for EMA computation
+    '''
+    Apply exponential moving standardization to EEG data.
+
+    This function performs online normalisation by updating mean and variance
+    estimates over time using exponential decay. It first standardises all
+    training segments, then applies the same normalisation state
+    (mean and variance) to the test segments.
+
+    Returns:
+    standardized_train : array
+        Array of shape (n_trials, n_channels, n_samples) containing standardized training data.
+    standardized_test : array
+        Array of shape (n_trials, n_channels, n_samples) containing standardized test data.
+    '''
+   
     train_cont = np.concatenate(train_segments, axis=1)  # shape: (n_channels, total_samples)
     test_cont  = np.concatenate(test_segments, axis=1)
 
     n_channels, n_total_train_samples = train_cont.shape
     _, n_total_test_samples = test_cont.shape
 
-    # Initialize mean and variance from first `init_block_size` samples of TRAIN ONLY
     init_mean = np.mean(train_cont[:, :init_block_size], axis=1, keepdims=True)
     init_var  = np.var(train_cont[:, :init_block_size], axis=1, keepdims=True)
 
-    # Allocate outputs
     train_out = np.zeros_like(train_cont)
     test_out  = np.zeros_like(test_cont)
 
-    # Initialize running stats
     mean_t = init_mean.copy()
     var_t  = init_var.copy()
 
-    # ---- Standardize TRAIN ----
     for t in range(n_total_train_samples):
-        x_t = train_cont[:, t:t+1]  # shape: (n_channels, 1)
+        x_t = train_cont[:, t:t+1] 
         mean_t = (1 - decay) * x_t + decay * mean_t
         var_t  = (1 - decay) * (x_t - mean_t) ** 2 + decay * var_t
         train_out[:, t:t+1] = (x_t - mean_t) / np.sqrt(var_t + 1e-8)
 
-    # ---- Standardize TEST ----
-    # Carry over mean_t and var_t from the end of TRAIN
     for t in range(n_total_test_samples):
         x_t = test_cont[:, t:t+1]
         mean_t = (1 - decay) * x_t + decay * mean_t
         var_t  = (1 - decay) * (x_t - mean_t) ** 2 + decay * var_t
         test_out[:, t:t+1] = (x_t - mean_t) / np.sqrt(var_t + 1e-8)
 
-    # Reshape back to original trial structure
     def split_trials(standardized, original_segments):
         result = []
         idx = 0
@@ -466,6 +398,8 @@ def exponential_moving_standardize(train_segments, test_segments, decay=0.999, i
 
     return standardized_train, standardized_test
 
+# This function applies the independent component analysis (ICA) transformation to inputted raw signal data.
+# This acts as a form of artifact removal in pre-processing
 def apply_ica(raw, gui):
     raw.set_channel_types({ch: 'eog' for ch in raw.ch_names[-3:]})
 
@@ -475,15 +409,14 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_before.png")
-        #plt.show()  
 
     # Detect components correlated with EOG
     ica.exclude = ica.find_bads_eog(raw)[0]
-    #ica.exclude = [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] #Manual visual inspection 
 
     # Apply ICA
     raw = ica.apply(raw)
 
+    #Plot ICA sources for visualisation
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_after.png") 
@@ -491,6 +424,7 @@ def apply_ica(raw, gui):
     # Now drop EOG before epochs
     raw.pick_types(eeg=True)
 
+    #Plot ICA overlay
     if gui:
         ica.plot_overlay(raw, exclude=ica.exclude, picks='eeg', show=False)
         savefig_unique(plt, "ica_overlay.png")
@@ -499,7 +433,25 @@ def apply_ica(raw, gui):
 
     return raw
 
+
 def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica, gui):
+    """
+    Helper function to load and preprocess EEG data from the BCI Competition IV 2a dataset.
+
+    This function loads .gdf EEG files and their corresponding .mat label files,
+    applies specified pre-processing, and epoching to create fixed-length processed trials with associated class labels.
+    Args:
+    file_names : List of subject/session file names (without extensions) to load.
+    tmin, tmax : Start and end times (in seconds) for epoch extraction relative to cue onset.
+    chans : Number of EEG channels to retain
+    bandpass : Frequency band (low_cutoff, high_cutoff) for band-pass filtering.
+    mode : Dataset mode, e.g., "gdf" for loading from .gdf files.
+    amp_mag : Amplitude scaling factor to adjust signal magnitude.
+    baseline : Baseline correction period for MNE epoching.
+    ica : Whether to apply Independent Component Analysis (ICA) for artifact removal.
+    gui : If True, display diagnostic plots for visual inspection.
+    """
+
     if file_names:
         all_segments = []
         all_labels = []
@@ -510,8 +462,7 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 labels_path = directory + "true_labels/" + file_name + ".mat"
                 raw = mne.io.read_raw_gdf(data_path, preload=True, verbose=0)
 
-                ################################################ BANDPASS ####################################
-                
+                ################################################ BANDPASS ####################################4
                 raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
                 #raw.filter(2, None, method='iir') 
 
@@ -531,8 +482,8 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                     fig2 = raw.plot_psd(fmax=50, show=False)
                     fig2.suptitle("PSD After ICA")
 
-                    savefig_unique( fig1, "before_ica.png",  False)
-                    savefig_unique(  fig2, "after_ica.png",False)
+                    savefig_unique(fig1, "before_ica.png",  False)
+                    savefig_unique(fig2, "after_ica.png",False)
 
                     #fig1.show()
                     #fig2.show()
@@ -576,6 +527,10 @@ def bci_2a_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
         return None, None
 
 def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica, gui):
+    """
+    Load, preprocess, and standardize training and testing data for BCI Competition IV 2a.
+
+    This function orchestrates the full preprocessing pipeline:"""
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 22 # There are actually 25 channels, but we only want to retain 22, as 3 are EOG
     names        = ['left', 'right', 'foot', 'tongue']
@@ -585,10 +540,29 @@ def get_bci_2a(file_names_training, file_names_testing, bandpass, tmin, tmax, mo
     test_segments, test_labels = bci_2a_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
 
     train_segments, test_segments = exponential_moving_standardize(train_segments, test_segments)
+
+    
     
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
 def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baseline, ica, gui):
+    """
+    Helper function to load and preprocess EEG data from the BCI Competition IV 2b dataset.
+
+    This function loads .gdf EEG files and their corresponding .mat label files,
+    applies specified pre-processing, and epoching to create fixed-length processed trials with associated class labels.
+    Args:
+    file_names : List of subject/session file names (without extensions) to load.
+    tmin, tmax : Start and end times (in seconds) for epoch extraction relative to cue onset.
+    chans : Number of EEG channels to retain
+    bandpass : Frequency band (low_cutoff, high_cutoff) for band-pass filtering.
+    mode : Dataset mode, e.g., "gdf" for loading from .gdf files.
+    amp_mag : Amplitude scaling factor to adjust signal magnitude.
+    baseline : Baseline correction period for MNE epoching.
+    ica : Whether to apply Independent Component Analysis (ICA) for artifact removal.
+    gui : If True, display diagnostic plots for visual inspection.
+    """
+    
     if file_names:
         all_segments = []
         all_labels = []
@@ -606,11 +580,6 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
 
                 # 2. Plot some raw channels before ICA
                 raw.plot(n_channels=10, title='Raw EEG Before ICA', show=True)
-
-                ################################################ BANDPASS ####################################
-                
-                raw.filter(bandpass[0],bandpass[1], fir_design='firwin', skip_by_annotation='edge', verbose=0)
-                #raw.filter(2, None, method='iir') 
 
                 ################################################## ICA ###################################
                 raw_before_ica = raw.copy()
@@ -642,9 +611,9 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                 }, verbose = 0)
 
                 #Epoch data into windowed trials
-                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True,verbose=0)
+                epochs = mne.Epochs(raw, events, tmin=tmin, tmax=tmax, baseline=baseline, preload=True, verbose=0)
 
-                #Get the signal data from the EEG channels of epoch
+                #Get the signal data from the EEG channels of epoch. omit EOG signals
                 all_segments.append(epochs.get_data()[:,:chans,:-1]) # i did this -1 because the samples was always exactly 1 too high.
 
                 labels_raw = loadmat(labels_path)
@@ -670,6 +639,11 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
         return None, None
 
 def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mode, amp_mag, baseline, ica, gui):
+    """
+    Load, preprocess, and standardize training and testing data for BCI Competition IV 2b.
+
+    This function orchestrates the full preprocessing pipeline:
+    """
     sample_rate = 250 #From BCI Dataset description
     kernels, chans = 1, 3 # There are actually 6 channels, but we only want to retain 3, as 3 are EOG
     names        = ['left', 'right']
@@ -678,34 +652,44 @@ def get_bci_2b(file_names_training, file_names_testing, bandpass, tmin, tmax, mo
     train_segments, train_labels = bci_2b_helper(file_names_training, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
     test_segments, test_labels = bci_2b_helper(file_names_testing, tmin, tmax, chans, bandpass, mode, amp_mag, baseline, ica, gui)
 
+    train_segments, test_segments = exponential_moving_standardize(train_segments, test_segments)
+
     return(train_segments, train_labels, test_segments, test_labels, chans, kernels, samples, names, sample_rate)
 
-#Function plots 1 epoch
-def plot_epoch_with_event(epoch, sfreq, tmin=0.0, channel_names=None, title=None):
-
-    n_channels, n_times = epoch.shape
-    times = tmin + np.arange(n_times) / sfreq
-
-    offset = np.max(np.abs(epoch)) * 1.2
-    fig, ax = plt.subplots(figsize=(8, n_channels * 0.3))
-    for ch in range(n_channels):
-        ax.plot(times, epoch[ch] + ch * offset, label=(channel_names[ch] if channel_names else None))
-    # mark event at t=0
-    ax.axvline(0.0, color='k', linestyle='--', linewidth=1)
-
-    ax.set_xlabel('Time (s)')
-    ax.set_yticks(np.arange(n_channels) * offset)
-    if channel_names:
-        ax.set_yticklabels(channel_names)
-    else:
-        ax.set_yticklabels([f'Ch {i}' for i in range(n_channels)])
-    ax.set_title('Single Epoch with Event Onset (t=0)')
-    ax.grid(True, axis='x', linestyle=':', linewidth=0.5)
-    plt.tight_layout()
-    plt.title(title)
-    savefig_unique(plt,"epoch_with_event.png")
-
 def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType, stop_threshold, input_format, model_type, freq_bins_centers, time_window_centers, n_freqs, lr, l2):
+    """
+    Prepare, configure, and compile a model for EEG classification. Dynamically builds and compiles an appropriate neural network model
+    based on the provided input format and model type. It also sets up callbacks such as checkpointing, early stopping, and learning rate scheduling.
+
+    Parameters
+    ----------
+    X_train, X_validate, X_test : Training, validation, and test data arrays.
+    classes : Number of output classes (e.g., 4 for BCI-IV 2a).
+    chans : Number of EEG channels.
+    samples : Number of samples (time-points) per trial.
+    dropoutRate : Dropout probability for regularization.
+    kernLength : Length of temporal convolution kernels.
+    F1, D, F2 : EEGNet hyperparameters controlling filter counts and depth multiplier.
+    dropoutType : Type of dropout ('Dropout' or 'SpatialDropout2D').
+    stop_threshold : Early stopping patience (in epochs); 0 disables early stopping.
+    input_format : Input data type — one of {'timeseries', 'stft', 'wavelet'}.
+    model_type : Model architecture to instantiate — one of {'EEGNet', 'Shallow', 'Deep', 'EEGNet_Modified'}.
+    freq_bins_centers : Frequency bin centers (used for STFT-based models).
+    time_window_centers : Time window centers (used for STFT-based models).
+    n_freqs : Number of frequency components (for wavelet input).
+    lr : Whether to include a learning rate scheduler callback.
+    l2 : L2 regularisation penalty (used in modified EEGNet).
+
+    Returns
+    -------
+    X_train, X_validate, X_test : Possibly reshaped datasets depending on input format.
+    model : Compiled model ready for training.
+    numParams : Total number of trainable model parameters.
+    checkpointer : Callback for saving best-performing model weights.
+    callbacks : List of callbacks used during training.
+    """
+    
+    #If timeseries input is specified, create the model based on the specified model.
     if input_format == "timeseries":
         if model_type == "EEGNet":
             
@@ -719,34 +703,33 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
 
             model = DeepConvNet(classes, chans, samples, dropoutRate)
         
-        elif model_type == "EEGNet_Bob":
-            model = EEGNet_Bob(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType, l2_penalty=l2) 
+        elif model_type == "EEGNet_Modified":
+            model = EEGNet_Modified(classes, chans, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType, l2_penalty=l2) 
 
+    #If stft input is specified, create the model based on the specified model.
     elif input_format == "stft": #time frequency
         print(len(time_window_centers))
         if model_type == "EEGNet":
-            #Shape the 2d STFTs into 1d timeseries and feed back into EEGnet (bad idea i think)
-            
+
+            #Shape the 2d STFTs into 1d timeseries and feed back into EEGnet (does not work well - would not reccomend doing this)
             X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], X_train.shape[2] * X_train.shape[3], 1)
             X_validate = X_validate.reshape(X_validate.shape[0], X_validate.shape[1], X_validate.shape[2] * X_validate.shape[3], 1)
             X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], X_test.shape[2] * X_test.shape[3], 1)
 
             model = EEGNet(classes, chans, len(freq_bins_centers)*len(time_window_centers), dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
-        else:
-            model = EEGNet_TF(classes, chans, len(freq_bins_centers), len(time_window_centers), dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
-
-    elif input_format == "wavelet":
-        model = EEGNet_Wavelet3(classes, chans, n_freqs, samples, dropoutRate, kernLength, F1, D, F2, dropoutType=dropoutType)
+        #elif model_type == "EEGNet_STFT":
+            #This option is disabled for now, as we abandoned the EEGNet_STFT variant we created.
+            
+    #elif input_format == "wavelet":
+        #This option is disabled for now, as we also  abandoned the EEGNet_Wavelet variant we created.
 
     # compile the model and set the optimizers
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics = ['accuracy'])
-
-    numParams    = model.count_params()    
+    numParams    = model.count_params()   
+    print("NumParams: ", {numParams}) 
 
     # set a valid path for your system to record model checkpoints
     checkpointer = ModelCheckpoint(filepath='/tmp/checkpoint.h5', verbose=2, save_best_only=True)
-
-    print("NumParams: ", {numParams})
 
     if stop_threshold == 0:
         callbacks = [checkpointer]
@@ -767,9 +750,39 @@ def prepare_model(X_train, X_validate, X_test, classes, chans, samples, dropoutR
         )
         callbacks.append(lr_scheduler)
         print(callbacks)
+
     return X_train, X_validate, X_test, model, numParams, checkpointer, callbacks
 
 def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, cross_validate, train_index=None, val_index=None, fold_step=None):
+    """
+    Prepare train/val/test datasets for EEG classification.
+
+    Steps:
+    1) Optional transform of inputs into STFT or wavelet domains.
+    2) Split into train/validation (CV indices or stratified split).
+    3) Reshape to expected (n, chans, samples, kernels) for time-series.
+    4) One-hot encode labels.
+    5) Per-channel standardization using train-set stats.
+    6) Optional axis transpose for wavelet models.
+
+    Params:
+    X_train_raw : Raw training trials; shape depends on input_format.
+    X_test : Raw test trials matching X_train_raw structure.
+    Y_train_raw, Integer class labels (not one-hot).
+    sample_rate : Sampling frequency (Hz).
+    segment_len, sample_overlap, boundary, padding : STFT parameters passed to `convert_stft`.
+    input_format : One of {"timeseries", "stft", "wavelet"}.
+    chans, samples, kernels : Expected dims for time-series reshape.
+    n_freqs : Number of frequencies for wavelet transform.
+    cross_validate : If True, use provided indices for train/val split.
+    train_index, val_index : Indices used when cross_validate=True.
+    fold_step : Fold counter (printed for logging).
+
+    Returns
+    X_train, X_test, X_validate : Prepared inputs ready for model consumption.
+    Y_train, Y_validate, Y_test : One-hot encoded labels.
+    freq_bins_centers, time_window_centers : data for STFT grids (None for other formats).
+    """
     freq_bins_centers, time_window_centers = None, None  
     if input_format == "stft":
         X_train_raw, X_test, freq_bins_centers, time_window_centers = convert_stft(X_train_raw, X_test, sample_rate, segment_len, sample_overlap, boundary, padding)
@@ -800,31 +813,28 @@ def prepare_data(X_train_raw, X_test,Y_train_raw, Y_test, sample_rate, segment_l
     Y_validate = np_utils.to_categorical(Y_validate) # One hot encoding format for probabilistic classification
     Y_test = np_utils.to_categorical(Y_test) # One hot encoding format for probabilistic classification
 
-    # 2) Standardize per-channel (over time & trials)
+    # Standardize per-channel (over time & trials)
     mean  = X_train.mean(axis = (0,2), keepdims=True)
     std   = X_train.std(axis = (0,2), keepdims=True)
     X_train    = (X_train   - mean) / std
     X_validate = (X_validate- mean) / std
     X_test     = (X_test    - mean) / std
 
-    # The ChatGPT generated wavelet model likes this format input
-
     if input_format=="wavelet":
         X_train = np.transpose(X_train, (0, 2, 3, 1))
         X_validate = np.transpose(X_validate, (0, 2, 3, 1)) 
         X_test = np.transpose(X_test, (0, 2, 3, 1))
     
-    """if input_format=="wavelet":
-        chans = 3
-        X_train = X_train[:,:,:,[7,9,11]]
-        X_validate = X_validate[:,:,:,[7,9,11]]
-        X_test = X_test[:,:,:,[7,9,11]]"""
-
-        # Keep only C3, C4 and CZ channels for wavelet (reccomended by wavelet paper)
-        # Does not seem to work
-    
     return X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers
-def plot_curves(history, title="Validation and Loss Curves"):
+
+#Given training history, plots train and validation accuracy/loss curves
+def plot_curves(history, title="Accuracy and Loss Curves"):
+
+
+    # If multiple histories given, average them and display an aggregate 
+    # Do not recommend doing this. the resulting plot doesnt make that much sense
+    # if isinstance(history, list):
+        #history = average_histories(history)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10), sharex=True)
 
@@ -846,10 +856,12 @@ def plot_curves(history, title="Validation and Loss Curves"):
     ax2.grid(True)
 
     plt.tight_layout()
-    plt.title(title)
-    
+    plt.suptitle(title, y=1.02)
+
     savefig_unique(plt, "accuracy_loss_curves.png")
 
+#Given the y predictions and true y labels, plot a confusion matrix. 
+#Can also bypass the construction  by inputting directly the cm object if it is already made
 def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix", cm=None):
     
     if cm is None: # cm param allows bypassing of this
@@ -865,7 +877,37 @@ def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix",
     #plt.show()
     savefig_unique(plt, "confusion_matrix.png")
 
+
 def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,logfile, sum_accuracies=0, gui_plots=True, fold_step=None):
+
+    """
+    Evaluate a trained EEG model on the test set and optionally visualize results.
+
+    Loads the best saved weights, performs prediction, computes accuracy metrics,
+    logs results to file, and if enabled displays confusion matrix, probability
+    plots, learning curves, etc.
+
+    Parameters
+    ----------
+    X_test : Test inputs of shape (n_trials, n_channels, n_samples, 1).
+    Y_test : One-hot encoded true labels for the test set.
+    model : Trained model instance whose weights are re-loaded from checkpoint.
+    fittedModelHistory : History object returned by `model.fit()`, used to extract best epoch.
+    names : Class names for axis labels in plots (e.g., ["left", "right", "foot", "tongue"]).
+    i : Subject index (used in printouts/log file).
+    logfile : Path to text file where accuracies are appended.
+    sum_accuracies : Running sum of accuracies across folds/subjects; default = 0.
+    gui_plots : If True, produce diagnostic plots.
+    fold_step : Current fold index when doing cross-validation.
+
+    Returns
+    -------
+    sum_accuracies : Updated accumulated accuracy total.
+    acc : Test accuracy for this run.
+    class_acc : Per class accuracy derived from confusion matrix.
+    cm : Confusion matrix 
+    """
+
     # load optimal model weights based on validation accuracy
     model.load_weights('/tmp/checkpoint.h5')
 
@@ -876,19 +918,15 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
     sum_accuracies += acc
     best_epoch = fittedModelHistory.history['val_loss'].index(min(fittedModelHistory.history['val_loss']))
 
+    #model outputs
     print(model.summary())
     print("Test set accuracy: %f " % (acc))
     print("Best epoch: ", best_epoch)
     print("Average confidence of selected class: ", np.mean(probs.max(axis=1)))
 
-    print("ABD")
     cm = confusion_matrix(preds, Y_test.argmax(axis = -1))
     class_acc = cm.diagonal() / cm.sum(axis=0)   # per-class accuracy #used to be axis=1 for recall
     print(class_acc)
-    #for j in range(len(class_acc)):
-     #   if math.isnan(class_acc[j]):
-      #      class_acc[j] = 0
-    #print(class_acc)
 
     # Log accuracy to file
     with open(logfile, "a") as f:
@@ -901,13 +939,11 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
     if gui_plots:
         plot_confusion_matrix(Y_test.argmax(axis = -1), preds, names, title = f"Subject {i+1} Fold {fold_step}")
 
-        # XDAWN RG, Only works in time series, Also doesnt seem to work with BCI 2B
-        #xdawnrg(X_train, X_test, Y_train, Y_test, chans, samples, names)
-
         # Show only the first 10 samples for clarity
         samples_to_plot = 10
         plot_predicted_probs(probs, samples_to_plot, title = f"Subject {i+1} Fold {fold_step}")
 
+        #plot validation accuracy curves for train/val
         plot_curves(fittedModelHistory.history, title = f"Subject {i+1} Fold {fold_step}")
 
         # Plot all confidences
