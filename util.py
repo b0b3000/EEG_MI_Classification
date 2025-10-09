@@ -45,7 +45,8 @@ def savefig_unique(fig, filepath, fig_obj=True):
     if fig_obj:
         fig.savefig(unique_path)
     else:
-        fig.figure.savefig(unique_path)
+        #fig.figure.savefig(unique_path)
+        fig.savefig(unique_path)
 
     print(f"[INFO] Saved: {unique_path}")
 
@@ -185,6 +186,8 @@ def plot_all_predicted_probabilities(probs, title=None, class_names=None):
     plt.tight_layout()
     plt.legend()
     savefig_unique(plt, "all_prob_distributions.png")
+    plt.close()
+
 
 # Plots the first trial and channel for visualisation
 def plot_single_channel(x, sample_rate, dataset, title):
@@ -198,7 +201,36 @@ def plot_single_channel(x, sample_rate, dataset, title):
     plt.grid(True)
     savefig_unique(plt, title)
 
-#Converts inputted signal arrays into STFT spectographs
+    # code is taken from PyRiemann's ERP sample script, which is decoding in 
+    # the tangent space with a logistic regression
+
+    n_components = 2  # pick some components
+
+    # set up sklearn pipeline
+    clf = make_pipeline(XdawnCovariances(n_components),
+                        TangentSpace(metric='riemann'),
+                        LogisticRegression())
+    
+    preds_rg     = np.zeros(len(Y_test))
+
+    # reshape back to (trials, channels, samples)
+    X_train_reshaped      = X_train.reshape(X_train.shape[0], chans, samples)
+    X_test_reshaped       = X_test.reshape(X_test.shape[0], chans, samples)
+
+    # train a classifier with xDAWN spatial filtering + Riemannian Geometry (RG)
+    # labels need to be back in single-column format
+    clf.fit(X_train_reshaped, Y_train.argmax(axis = -1))
+    preds_rg     = clf.predict(X_test_reshaped)
+
+    # Printing the results
+    acc2         = np.mean(preds_rg == Y_test.argmax(axis = -1))
+    print("Classification accuracy xDAWN + RG: %f " % (acc2))
+
+    plt.figure(1)
+    plot_confusion_matrix(preds_rg, Y_test.argmax(axis = -1), names, title = 'xDAWN + RG')
+
+    savefig_unique(plt, "confusion_xdawnrg.png")
+
 def convert_stft(X_train, X_test, sample_rate, segment_len=64, sample_overlap=32, boundary="zeros", padding=True):
     def compute_stft(X,dataset):
         plot_single_channel(X[0,0], sample_rate, dataset, "before_stft.png")
@@ -256,6 +288,8 @@ def visualise_sample_stft(freqs, times, sample_stft, dataset="Training Set"):
     plt.colorbar(pcm, label='Magnitude')
     plt.tight_layout()
     savefig_unique(plt, "stft.png")
+    plt.close()
+
 
 def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilities"):
     '''
@@ -305,6 +339,8 @@ def plot_predicted_probs(probs, num_samples_to_plot, title="Predicted Probabilit
     plt.xticks(rotation=45)
     plt.tight_layout()
     savefig_unique(plt, "predicted_probs.png")
+    plt.close()
+
 
 def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
 
@@ -340,6 +376,8 @@ def plot_prediction_confidence(probs, title="Prediction Confidences", k=1.2):
     plt.ylabel("Frequency")
 
     savefig_unique(plt, "top_confidence_distribution.png")
+    plt.close()
+
 
 def exponential_moving_standardize(train_segments, test_segments, decay=0.999, init_block_size=1000):
     '''
@@ -409,6 +447,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_before.png")
+        plt.close()
+
 
     # Detect components correlated with EOG
     ica.exclude = ica.find_bads_eog(raw)[0]
@@ -420,6 +460,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_sources(raw, show=False)  
         savefig_unique(plt, "ica_sources_after.png") 
+        plt.close()
+
 
     # Now drop EOG before epochs
     raw.pick_types(eeg=True)
@@ -428,6 +470,8 @@ def apply_ica(raw, gui):
     if gui:
         ica.plot_overlay(raw, exclude=ica.exclude, picks='eeg', show=False)
         savefig_unique(plt, "ica_overlay.png")
+        plt.close()
+
 
     print(f"Components to remove: {ica.exclude}")
 
@@ -600,7 +644,11 @@ def bci_2b_helper(file_names, tmin, tmax, chans,bandpass, mode, amp_mag, baselin
                         #fig1.show()
                         #fig2.show()
                         savefig_unique(fig1, "PSD_before_ica.png",  False)
+                        plt.close()
+
                         savefig_unique(fig2,"PSD_after_ica.png",  False)
+                        plt.close()
+
                 ####################################################################################
                 
 
@@ -859,6 +907,9 @@ def plot_curves(history, title="Accuracy and Loss Curves"):
     plt.suptitle(title, y=1.02)
 
     savefig_unique(plt, "accuracy_loss_curves.png")
+    plt.close()
+
+     
 
 #Given the y predictions and true y labels, plot a confusion matrix. 
 #Can also bypass the construction  by inputting directly the cm object if it is already made
@@ -876,6 +927,10 @@ def plot_confusion_matrix(y_pred, y_true, class_names, title="Confusion Matrix",
     plt.tight_layout()
     #plt.show()
     savefig_unique(plt, "confusion_matrix.png")
+    plt.close()
+
+     
+
 
 
 def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,logfile, sum_accuracies=0, gui_plots=True, fold_step=None):
@@ -914,6 +969,7 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
     #predict
     probs = model.predict(X_test)
     preds = probs.argmax(axis = -1)
+    y_true = Y_test.argmax(axis=-1)
     acc = np.mean(preds == Y_test.argmax(axis=-1))
     sum_accuracies += acc
     best_epoch = fittedModelHistory.history['val_loss'].index(min(fittedModelHistory.history['val_loss']))
@@ -952,4 +1008,35 @@ def predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i,lo
         # plot all selected probs
         plot_all_predicted_probabilities(probs, title = f"Subject {i+1} Fold {fold_step}")
 
-    return sum_accuracies, acc, class_acc, cm
+    return sum_accuracies, acc, class_acc, cm, y_true, preds, probs, fittedModelHistory.history
+
+def average_histories(histories):
+    """
+    Takes a list of Keras history.history dicts and returns
+    a single averaged history dict (element-wise mean across epochs).
+    """
+    # Determine max length
+    max_epochs = max(len(h['val_loss']) for h in histories)
+    keys = histories[0].keys()
+    averaged = {}
+
+    for key in keys:
+        # Initialise array (num_histories x max_epochs)
+        arr = np.zeros((len(histories), max_epochs))
+        for i, h in enumerate(histories):
+            if key in h:
+                arr[i, :len(h[key])] = h[key]
+        averaged[key] = arr.mean(axis=0)
+
+    return averaged
+
+def aggregate_plot(all_true, all_preds, all_probs, all_histories):
+    all_true_flat = np.concatenate(all_true)
+    all_preds_flat = np.concatenate(all_preds)
+    all_probs_flat = np.concatenate(all_probs)
+    avg_hist = average_histories(all_histories)
+
+    plot_all_predicted_probabilities(all_probs_flat, title="Aggregate Prediction Confidence")
+
+    plot_curves(avg_hist, title="Aggregate Learning Curves")
+
