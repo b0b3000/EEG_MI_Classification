@@ -1,5 +1,5 @@
-# EEG Motor Imagery Classification Pipeline
-*A Deep Learning Framework for EEG-Motor Imagery classificiation in BCI Systems*
+# An EEGNet-based approach to Motor Imagery classification in BCI systems.
+*An end-to-end Deep Learning Framework*
 
 ## Overview
 - End-to-end EEG motor imagery classification system built for the **BCI Competition IV 2a/2b** datasets.  
