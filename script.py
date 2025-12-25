@@ -8,6 +8,7 @@ import datetime
 title = "EEGNet_Modified"
 
 # Specify the input format, model type and dataset.
+
 input_format = "timeseries"
 model_type = "EEGNet_Modified"
 dataset = "BCI 2a"
@@ -32,14 +33,15 @@ baseline = None #best: None
 amplitude_magnification = 1000 #best: 1000
 ica = False # Best: True
 
-#Only relevant to STFT 
+# STFT 
 segment_len=128
 sample_overlap=64
 boundary=None
 padding=True
 
-#Only relevant to WAVELET
+# WAVELET
 n_freqs = 30
+
 
 #MODEL HYPERPARAMS
 dropoutRate = 0.5 # Best 0.4
@@ -142,7 +144,9 @@ if same_subject:
 
         # Cross-validation over all folds
         for fold_step, (train_index, val_index) in enumerate(train_val_split):
-            
+            training_file = training_files_list[i]
+            test_file = testing_files_list[i]
+
             # Prepare fold-specific datasets
             X_train, X_test, X_validate, Y_train, Y_validate, Y_test, freq_bins_centers, time_window_centers = util.prepare_data(X_train_raw,  X_test_raw, Y_train_raw, Y_test_raw, sample_rate, segment_len, sample_overlap, boundary, padding, input_format, chans, samples, kernels, n_freqs, True, train_index,val_index, fold_step)
             
@@ -158,6 +162,7 @@ if same_subject:
             
             # Make predictions and visualise the fold
             _, acc, class_acc, fold_cm = util.predict_and_visualise(X_test, Y_test, model, fittedModelHistory, names, i, logfile, sum_accuracies, gui, fold_step)
+
 
             # Log results from this fold
             subject_acc_list.append(acc)
